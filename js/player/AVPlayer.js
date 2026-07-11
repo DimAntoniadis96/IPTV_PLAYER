@@ -88,7 +88,13 @@ export class AVPlayer {
 
             return new Promise((resolve) => {
                 av.prepareAsync(
-                    () => { this._emit(PEVENT.READY); av.play(); this._emit(PEVENT.PLAYING); resolve(true); },
+                    () => {
+                        this._emit(PEVENT.READY);
+                        av.play();
+                        this._screenSaver(false); // keep the TV awake during playback
+                        this._emit(PEVENT.PLAYING);
+                        resolve(true);
+                    },
                     (e) => { log.warn('prepareAsync failed', e); this._emit(PEVENT.ERROR, { code: e }); resolve(false); }
                 );
             });
@@ -121,13 +127,28 @@ export class AVPlayer {
     // ---------------- Common controls ----------------
 
     play() {
-        if (this._useAvplay) { try { webapis.avplay.play(); this._emit(PEVENT.PLAYING); } catch (e) {} }
+        if (this._useAvplay) { try { webapis.avplay.play(); this._screenSaver(false); this._emit(PEVENT.PLAYING); } catch (e) {} }
         else { this._media.play(); }
     }
 
     pause() {
-        if (this._useAvplay) { try { webapis.avplay.pause(); this._emit(PEVENT.PAUSED); } catch (e) {} }
+        if (this._useAvplay) { try { webapis.avplay.pause(); this._screenSaver(true); this._emit(PEVENT.PAUSED); } catch (e) {} }
         else { this._media.pause(); }
+    }
+
+    /**
+     * Enable/disable the TV screen saver. Disabled during playback so a long
+     * live stream isn't interrupted; re-enabled when paused/stopped. Safe
+     * no-op if the appcommon API isn't present.
+     * @param {boolean} enabled
+     */
+    _screenSaver(enabled) {
+        try {
+            if (typeof webapis !== 'undefined' && webapis.appcommon && webapis.appcommon.AppCommonScreenSaverState) {
+                const S = webapis.appcommon.AppCommonScreenSaverState;
+                webapis.appcommon.setScreenSaver(enabled ? S.SCREEN_SAVER_ON : S.SCREEN_SAVER_OFF, () => {}, () => {});
+            }
+        } catch (e) { /* screensaver control unavailable — ignore */ }
     }
 
     /** @returns {boolean} true if now paused */
@@ -173,7 +194,7 @@ export class AVPlayer {
 
     /** Stop playback (keeps the surface for a subsequent open). */
     stop() {
-        if (this._useAvplay) { try { webapis.avplay.stop(); } catch (e) {} }
+        if (this._useAvplay) { try { webapis.avplay.stop(); this._screenSaver(true); } catch (e) {} }
         else { try { this._media.pause(); this._media.removeAttribute('src'); this._media.load(); } catch (e) {} }
     }
 
@@ -182,6 +203,7 @@ export class AVPlayer {
         if (this._useAvplay) {
             try { webapis.avplay.stop(); } catch (e) {}
             try { webapis.avplay.close(); } catch (e) {}
+            this._screenSaver(true); // restore screensaver on teardown
         } else if (this._media) {
             try { this._media.pause(); this._media.removeAttribute('src'); this._media.load(); } catch (e) {}
         }

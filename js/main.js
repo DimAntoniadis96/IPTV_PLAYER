@@ -51,6 +51,17 @@ async function bootstrap() {
     // a desktop browser, where there's no remote to drive focus).
     if (typeof tizen !== 'undefined') document.documentElement.classList.add('is-tv');
 
+    // Global safety net: keep stray promise rejections / errors from bubbling
+    // to an "Uncaught" on the TV. Messages go through the redacting logger.
+    window.addEventListener('unhandledrejection', (e) => {
+        const reason = e && e.reason;
+        log.warn('unhandled rejection', (reason && reason.message) || reason);
+        e.preventDefault();
+    });
+    window.addEventListener('error', (e) => {
+        log.warn('window error', e && e.message);
+    });
+
     // 1) Preferences-driven services.
     theme.init();
     i18n.init();

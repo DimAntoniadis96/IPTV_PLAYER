@@ -65,11 +65,22 @@
 .cats-pane { width: 420px; flex: none; }
 .cats-pane.is-hidden { display: none; }
 .grid-pane { flex: 1; min-width: 0; }
-.cats { display: flex; flex-direction: column; gap: var(--sp-1); height: 100%; overflow: hidden; }
+.cats {
+    display: flex; flex-direction: column; gap: var(--sp-1);
+    height: 100%;
+    overflow-y: auto; overflow-x: hidden;   /* scrollable so all categories reach */
+    scrollbar-width: none;
+    padding-right: var(--sp-1);
+}
+.cats::-webkit-scrollbar { width: 0; height: 0; }
 .cat {
+    flex: 0 0 auto;                          /* never shrink — keeps text from clipping */
+    min-height: 64px;
+    display: flex; align-items: center;
     padding: var(--sp-2) var(--sp-3);
     border-radius: var(--radius-md);
     font-size: var(--fs-md);
+    line-height: 1.2;
     color: var(--color-text-muted);
     background: transparent;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
