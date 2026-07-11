@@ -72,9 +72,36 @@ function log(req, status) {
     console.log(`${stamp}  ${status}  ${req.method}  ${req.url}`);
 }
 
-server.listen(PORT, () => {
+// Auto-increment retry state.
+let currentPort = PORT;
+let attemptsLeft = 10;
+
+// Printed only once the socket is actually bound, so the port is correct.
+server.on('listening', () => {
+    const port = server.address().port;
     console.log('\n  IPTV Player — dev server running');
-    console.log(`  →  http://localhost:${PORT}\n`);
+    console.log(`  →  http://localhost:${port}\n`);
     console.log('  Open the URL in Chrome, then F12 → device toolbar → 1920×1080.');
     console.log('  Stop with Ctrl+C.\n');
 });
+
+// If the port is busy, try the next one instead of crashing.
+server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE' && attemptsLeft > 0) {
+        const next = currentPort + 1;
+        console.log(`  Port ${currentPort} is in use — trying ${next}…`);
+        currentPort = next;
+        attemptsLeft -= 1;
+        setTimeout(() => server.listen(next), 150);
+        return;
+    }
+    if (err.code === 'EADDRINUSE') {
+        console.error(`\n  Could not find a free port near ${PORT}.`);
+        console.error('  Free it with:  lsof -ti:' + PORT + ' | xargs kill');
+        console.error('  Or choose one:  PORT=3000 npm run dev\n');
+        process.exit(1);
+    }
+    throw err;
+});
+
+server.listen(currentPort);
