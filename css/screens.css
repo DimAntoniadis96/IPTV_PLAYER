@@ -11,9 +11,18 @@
 .accounts-sub { color: var(--color-text-muted); font-size: var(--fs-md); }
 
 /* ---------- Login form ---------- */
-.login-screen { max-width: 1100px; }
+/* The form can be taller than the screen, so it becomes the scroll region.
+   Moving focus with the D-pad scrolls the focused field into view. */
+.login-screen { max-width: 1100px; height: 100%; display: flex; flex-direction: column; min-height: 0; }
 .login-title { font-size: var(--fs-xl); }
-.login-form { display: flex; flex-direction: column; gap: var(--sp-3); }
+.login-form {
+    display: flex; flex-direction: column; gap: var(--sp-3);
+    flex: 1 1 auto; min-height: 0;
+    overflow-y: auto;
+    padding: var(--sp-1) var(--sp-2) var(--sp-6);  /* bottom pad so last row clears the edge */
+    scrollbar-width: none;                         /* no scrollbar on TV */
+}
+.login-form::-webkit-scrollbar { width: 0; height: 0; }
 .form-field { display: flex; flex-direction: column; gap: var(--sp-1); padding: var(--sp-2); border-radius: var(--radius-md); }
 .field-label { font-size: var(--fs-sm); color: var(--color-text-muted); }
 .field-input {
@@ -70,8 +79,15 @@
 .cat.is-focused { box-shadow: var(--shadow-focus); background: var(--color-bg-elev-2); color: var(--color-text); transform: scale(1.02); }
 
 /* ---------- Settings ---------- */
-.settings-screen { max-width: 1100px; }
-.settings-list { display: flex; flex-direction: column; gap: var(--sp-2); }
+.settings-screen { max-width: 1100px; height: 100%; display: flex; flex-direction: column; min-height: 0; }
+.settings-list {
+    display: flex; flex-direction: column; gap: var(--sp-2);
+    flex: 1 1 auto; min-height: 0;
+    overflow-y: auto;
+    padding-bottom: var(--sp-6);
+    scrollbar-width: none;
+}
+.settings-list::-webkit-scrollbar { width: 0; height: 0; }
 .setting-row {
     display: flex; align-items: center; justify-content: space-between;
     padding: var(--sp-3);

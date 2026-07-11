@@ -1,0 +1,10 @@
+{
+    "name": "iptv-player-tizen",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Personal IPTV Player for Samsung Tizen TV — local dev server.",
+    "scripts": {
+        "dev": "node dev-server.js",
+        "start": "node dev-server.js"
+    }
+}
