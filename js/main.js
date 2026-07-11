@@ -47,6 +47,10 @@ function bootStatus(text) {
 async function bootstrap() {
     log.info('bootstrapping', { version: APP_VERSION });
 
+    // Mark real-TV runs so the CSS hides the mouse cursor (kept visible in
+    // a desktop browser, where there's no remote to drive focus).
+    if (typeof tizen !== 'undefined') document.documentElement.classList.add('is-tv');
+
     // 1) Preferences-driven services.
     theme.init();
     i18n.init();
@@ -82,8 +86,12 @@ async function bootstrap() {
         router.navigate(accounts.count ? VIEW.ACCOUNTS : VIEW.LOGIN);
     }
 
-    // Expose a minimal debug handle on-device (no credentials).
-    window.__iptv = { router, version: APP_VERSION };
+    // Minimal debug handle. Deliberately does NOT expose `router` or account
+    // objects, since screen state holds credentialed stream URLs.
+    window.__iptv = {
+        version: APP_VERSION,
+        go: (view) => router.navigate(view)
+    };
 }
 
 // Kick off once the DOM is ready.

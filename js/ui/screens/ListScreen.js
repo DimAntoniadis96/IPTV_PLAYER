@@ -205,7 +205,9 @@ export class ListScreen extends View {
             case ACTION.OK:
                 if (!this.grid.isEmpty) { this.zone = 'grid'; this._syncCatClasses(); this.grid.focus(); }
                 return true;
-            default: return false; // let Back/others fall through to router
+            case ACTION.LEFT:
+                return true; // already leftmost pane — consume so stale focus isn't moved
+            default: return false; // let Back/colour keys fall through to router
         }
     }
 

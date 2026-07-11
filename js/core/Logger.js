@@ -11,6 +11,9 @@ const LEVELS = { debug: 10, info: 20, warn: 30, error: 40, silent: 100 };
 /** Query-string params whose values must be masked (case-insensitive). */
 const SENSITIVE_PARAMS = /([?&](?:username|password|user|pass|pwd|token|auth|api_key)=)[^&#\s]*/gi;
 
+/** Path-embedded Xtream credentials: /live|/movie|/series/<user>/<pass>/ */
+const SENSITIVE_PATH = /(\/(?:live|movie|series)\/)[^/\s]+\/[^/\s]+(\/)/gi;
+
 /** Object keys whose values must be masked. */
 const SENSITIVE_KEYS = /^(username|password|user|pass|pwd|token|auth|apikey|api_key)$/i;
 
@@ -20,7 +23,9 @@ const SENSITIVE_KEYS = /^(username|password|user|pass|pwd|token|auth|apikey|api_
  * @returns {string}
  */
 function redactString(str) {
-    return String(str).replace(SENSITIVE_PARAMS, '$1***');
+    return String(str)
+        .replace(SENSITIVE_PARAMS, '$1***')
+        .replace(SENSITIVE_PATH, '$1***/***$2');
 }
 
 /**

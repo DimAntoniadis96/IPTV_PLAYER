@@ -147,23 +147,34 @@ export async function streamLines(url, onLine, options = {}) {
     const decoder = new TextDecoder('utf-8');
     let buffer = '';
     let bytes = 0;
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        bytes += value.byteLength;
-        if (bytes > NET.MAX_PLAYLIST_BYTES) {
-            reader.cancel();
-            throw new HttpError('Playlist too large', { url, kind: 'http' });
+    try {
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            bytes += value.byteLength;
+            if (bytes > NET.MAX_PLAYLIST_BYTES) {
+                reader.cancel();
+                throw new HttpError('Playlist too large', { url, kind: 'http' });
+            }
+            if (options.onProgress) options.onProgress(bytes);
+            buffer += decoder.decode(value, { stream: true });
+            let nl;
+            while ((nl = buffer.indexOf('\n')) >= 0) {
+                const line = buffer.slice(0, nl).replace(/\r$/, '');
+                buffer = buffer.slice(nl + 1);
+                onLine(line);
+            }
         }
-        if (options.onProgress) options.onProgress(bytes);
-        buffer += decoder.decode(value, { stream: true });
-        let nl;
-        while ((nl = buffer.indexOf('\n')) >= 0) {
-            const line = buffer.slice(0, nl).replace(/\r$/, '');
-            buffer = buffer.slice(nl + 1);
-            onLine(line);
-        }
+        if (buffer.length) onLine(buffer.replace(/\r$/, ''));
+    } catch (err) {
+        // A caller cancelling the stream (e.g. validation aborting after the
+        // header) surfaces here as an AbortError — classify it as a typed
+        // 'abort' so callers can distinguish it from a real network failure.
+        if (err instanceof HttpError) throw err;
+        const aborted = (options.signal && options.signal.aborted) || (err && err.name === 'AbortError');
+        throw new HttpError(aborted ? 'Stream aborted' : 'Stream read failed', {
+            url, kind: aborted ? 'abort' : 'network'
+        });
     }
-    if (buffer.length) onLine(buffer.replace(/\r$/, ''));
 }

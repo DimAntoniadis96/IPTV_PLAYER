@@ -60,6 +60,21 @@ Developer-Mode install instructions.
 | 8 | Favorites, recents, search, settings | ✅ done |
 | 9 | Theming, i18n, packaging | ✅ done |
 
+## Security notes
+
+- **Credentials are never logged.** The logger redacts both query-string
+  (`?username=…&password=…`) and path-embedded (`/live/<user>/<pass>/…`)
+  credentials, and object keys like `password`/`token`.
+- **Stored locally in plaintext.** Accounts (including passwords) are kept in
+  `localStorage` because automatic reconnect requires them. Anything with access
+  to the TV's app storage can read them — this is an inherent tradeoff for the
+  reconnect feature, not a leak.
+- **HTTP vs HTTPS.** Xtream sends credentials in the URL, so prefer an `https://`
+  server. If you enter a bare host, the app assumes `http://` (most IPTV panels
+  are http on custom ports); type the scheme explicitly to force HTTPS.
+- **No hardcoded server**, HTTPS supported, and every server response is
+  validated before use.
+
 ## Disclaimer
 
 This software ships **no** playlists, channels, streams or copyrighted content. It is a

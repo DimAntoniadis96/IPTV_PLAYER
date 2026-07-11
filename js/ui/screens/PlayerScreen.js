@@ -27,6 +27,9 @@ export class PlayerScreen extends View {
         this.item = params.item;
         this._retry = 0;
         this._hideTimer = null;
+        this._retryTimer = null;
+        this._destroyed = false;
+        this._suspended = false;
     }
 
     render() {
@@ -59,15 +62,39 @@ export class PlayerScreen extends View {
         document.body.classList.add('av-playing');
         this.player = new AVPlayer(this.surface);
         this.player.setEventHandler((name, data) => this._onEvent(name, data));
+
+        // App lifecycle: release the decoder when backgrounded (Home/Multitask),
+        // resume when we come back. Prevents background audio + a leaked decoder.
+        this._onVisibility = () => { if (document.hidden) this._suspend(); else this._resume(); };
+        document.addEventListener('visibilitychange', this._onVisibility);
+
         this._playCurrent();
     }
 
     onShow() { this._showControls(); }
 
     onUnmount() {
+        this._destroyed = true;
         if (this._hideTimer) clearTimeout(this._hideTimer);
+        if (this._retryTimer) clearTimeout(this._retryTimer);
+        if (this._onVisibility) document.removeEventListener('visibilitychange', this._onVisibility);
         if (this.player) this.player.destroy();
         document.body.classList.remove('av-playing');
+    }
+
+    /** Backgrounded: stop playback and release the hardware decoder. */
+    _suspend() {
+        if (this._destroyed || this._suspended) return;
+        this._suspended = true;
+        if (this._retryTimer) { clearTimeout(this._retryTimer); this._retryTimer = null; }
+        if (this.player) this.player.stop();
+    }
+
+    /** Foregrounded: reopen the current stream from scratch. */
+    _resume() {
+        if (this._destroyed || !this._suspended) return;
+        this._suspended = false;
+        this._playCurrent();
     }
 
     // ---------------- Playback ----------------
@@ -78,14 +105,18 @@ export class PlayerScreen extends View {
     }
 
     async _playCurrent() {
+        if (this._destroyed || this._suspended || !this.player) return;
         const item = this._playableAt(this.index) || this.item;
         this.item = item;
         this._retry = 0;
+        if (this._retryTimer) { clearTimeout(this._retryTimer); this._retryTimer = null; }
         this._updateInfo(item);
         this._showSpinner(true);
         this._hideError();
         history.add(item);
         const ok = await this.player.open(item.url);
+        // The screen may have been torn down or backgrounded during open().
+        if (this._destroyed || this._suspended || !this.player) return;
         if (!ok) this._handleError();
     }
 
@@ -98,7 +129,7 @@ export class PlayerScreen extends View {
             i = (i + delta + n) % n;
             if (this._playableAt(i)) { this.index = i; break; }
         }
-        this._flashCenter(delta > 0 ? '⑊' : '⑊');
+        this._flashCenter(delta > 0 ? '▲' : '▼');
         this._playCurrent();
     }
 
@@ -122,13 +153,20 @@ export class PlayerScreen extends View {
     }
 
     _handleError(data) {
+        if (this._destroyed || this._suspended) return;
         this._showSpinner(false);
         if (this._retry < MAX_AUTO_RETRY) {
             this._retry += 1;
             const delay = 800 * this._retry;
             log.warn(`playback error, auto-retry ${this._retry}/${MAX_AUTO_RETRY} in ${delay}ms`);
             this._showSpinner(true);
-            setTimeout(() => this.player.open(this.item.url).then((ok) => { if (!ok) this._handleError(); }), delay);
+            this._retryTimer = setTimeout(async () => {
+                this._retryTimer = null;
+                if (this._destroyed || this._suspended || !this.player) return;
+                const ok = await this.player.open(this.item.url);
+                if (this._destroyed || this._suspended || !this.player) return;
+                if (!ok) this._handleError();
+            }, delay);
             return;
         }
         this._showError('This stream could not be played. It may be offline.');

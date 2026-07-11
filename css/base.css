@@ -18,8 +18,11 @@ html, body {
     line-height: 1.35;
     -webkit-font-smoothing: antialiased;
     user-select: none;                /* no text selection with a remote */
-    cursor: none;                     /* hide the pointer; remote-driven UI */
 }
+
+/* Hide the pointer ONLY on the TV (class added at bootstrap when running on
+   Tizen). In a desktop browser the cursor stays visible for development. */
+html.is-tv, html.is-tv * { cursor: none !important; }
 
 img { -webkit-user-drag: none; }
 

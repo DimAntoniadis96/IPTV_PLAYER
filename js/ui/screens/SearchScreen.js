@@ -14,6 +14,7 @@ import { toast } from '../components/Toast.js';
 import { ACTION } from '../../input/Keys.js';
 import { VIEW } from '../../core/constants.js';
 import { i18n } from '../../i18n/i18n.js';
+import { focus } from '../../input/FocusManager.js';
 
 export class SearchScreen extends View {
     constructor(router, params) {
@@ -65,7 +66,12 @@ export class SearchScreen extends View {
         ]);
     }
 
-    onShow() { this.field.classList.add('is-focused'); this.zone = 'input'; }
+    onShow() {
+        this.zone = 'input';
+        // Make the field the real focus target so OK opens the TV keyboard
+        // (rather than firing the previous screen's stale focused element).
+        focus.setFocus(this.field);
+    }
 
     _onQuery() {
         if (this._debounce) clearTimeout(this._debounce);

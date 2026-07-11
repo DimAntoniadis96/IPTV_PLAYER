@@ -7,7 +7,7 @@
  * manager (arrow navigation + OK) as a default.
  * ===================================================================== */
 
-import { resolveAction, REGISTER_KEYS, ACTION } from './Keys.js';
+import { resolveAction, REGISTER_KEYS, ACTION, KEY } from './Keys.js';
 import { bus } from '../core/EventBus.js';
 import { EVENT } from '../core/constants.js';
 import { logger } from '../core/Logger.js';
@@ -77,14 +77,18 @@ class RemoteControl {
         const resolved = resolveAction(e);
         if (!resolved) return;
 
-        // While editing a text field, let the platform IME handle characters.
-        // Only BACK blurs the field (closing the keyboard); everything else
-        // passes through untouched so typing works normally.
+        // While editing a text field, let the field handle everything itself
+        // (typing AND Backspace/Delete). Only the TV Return key or Escape
+        // closes the keyboard / leaves the field. Crucially we do NOT treat
+        // Backspace as "Back" here, or it would blur the field and block
+        // character deletion.
         if (this._isEditing()) {
-            if (resolved.action === ACTION.BACK) {
+            const code = e.keyCode || e.which;
+            if (code === KEY.RETURN || code === KEY.ESCAPE) {
                 e.preventDefault();
                 document.activeElement.blur();
             }
+            // Backspace, letters, digits, arrows, etc. fall through to the input.
             return;
         }
 

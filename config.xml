@@ -45,8 +45,7 @@
     <!-- ================= Privileges ================= -->
     <!-- Network access to the configured IPTV server -->
     <tizen:privilege name="http://tizen.org/privilege/internet"/>
-    <!-- Query connectivity state to detect "server unavailable" / offline -->
-    <tizen:privilege name="http://tizen.org/privilege/network.get"/>
+    <!-- Query connectivity / network state (Samsung TV) -->
     <tizen:privilege name="http://developer.samsung.com/privilege/network.public"/>
     <!-- Register/capture Samsung remote control keys (Media keys, Ch up/down, colours) -->
     <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
@@ -54,9 +53,6 @@
     <tizen:privilege name="http://tizen.org/privilege/tv.audio"/>
     <!-- Relaunch / exit the application cleanly -->
     <tizen:privilege name="http://tizen.org/privilege/application.launch"/>
-    <tizen:privilege name="http://tizen.org/privilege/application.info"/>
-    <!-- Read app metadata (version string shown in Settings) -->
-    <tizen:privilege name="http://tizen.org/privilege/system"/>
 
     <!-- ================= App settings ================= -->
     <tizen:setting screen-orientation="landscape"
