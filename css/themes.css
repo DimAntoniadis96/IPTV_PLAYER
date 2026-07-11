@@ -1,0 +1,34 @@
+/* =====================================================================
+ * themes.css — Theme overrides (applied via <html data-theme="…">)
+ * ---------------------------------------------------------------------
+ * "dark" is the default from variables.css; these blocks override tokens
+ * for the other themes. Add a new theme by copying a block + adding it to
+ * THEMES in js/utils/theme.js.
+ * ===================================================================== */
+
+/* Midnight Blue — deeper blues, teal accent. */
+html[data-theme="midnight"] {
+    --color-bg:        #05070f;
+    --color-bg-elev-1: #0c1428;
+    --color-bg-elev-2: #142445;
+    --color-accent:    #34d0c4;
+    --color-accent-2:  #6ff0e6;
+    --color-focus-ring: #6ff0e6;
+    --color-border:    #1b2b4d;
+}
+
+/* Light — bright surfaces, dark text. */
+html[data-theme="light"] {
+    --color-bg:        #f3f5fa;
+    --color-bg-elev-1: #ffffff;
+    --color-bg-elev-2: #e7ecf5;
+    --color-bg-overlay: rgba(240, 243, 250, 0.86);
+    --color-text:      #101623;
+    --color-text-muted:#4b5670;
+    --color-text-disabled: #9aa3ba;
+    --color-accent:    #2563eb;
+    --color-accent-2:  #4f83f0;
+    --color-accent-contrast: #ffffff;
+    --color-border:    #d3dae8;
+    --color-focus-ring:#2563eb;
+}

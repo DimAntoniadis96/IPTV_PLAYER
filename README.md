@@ -51,14 +51,14 @@ Developer-Mode install instructions.
 | # | Module | Status |
 |---|--------|--------|
 | 1 | Project scaffold + config.xml + build docs | ✅ done |
-| 2 | Core utilities (HTTP, IndexedDB, event bus, logger, URL builder) | ⏳ |
-| 3 | Account & auth manager | ⏳ |
-| 4 | Playlist engine (Xtream API + M3U parser) | ⏳ |
-| 5 | Remote keys + spatial focus | ⏳ |
-| 6 | UI framework + screens | ⏳ |
-| 7 | AVPlay video player | ⏳ |
-| 8 | Favorites, recents, search, settings | ⏳ |
-| 9 | Theming, i18n, packaging | ⏳ |
+| 2 | Core utilities (HTTP, IndexedDB, event bus, logger, URL builder) | ✅ done |
+| 3 | Account & auth manager | ✅ done |
+| 4 | Playlist engine (Xtream API + M3U parser) | ✅ done |
+| 5 | Remote keys + spatial focus | ✅ done |
+| 6 | UI framework + screens | ✅ done |
+| 7 | AVPlay video player | ✅ done |
+| 8 | Favorites, recents, search, settings | ✅ done |
+| 9 | Theming, i18n, packaging | ✅ done |
 
 ## Disclaimer
 

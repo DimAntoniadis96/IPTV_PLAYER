@@ -1,74 +1,94 @@
 /* =====================================================================
- * main.js — Application entry point (Module 2 bootstrap)
+ * main.js — Application entry point
  * ---------------------------------------------------------------------
- * Detects whether we're running on a Samsung Tizen TV or in a desktop
- * browser.  On Tizen it will (eventually) initialise AVPlay and the
- * remote‑key subsystem; in a browser it loads `browser-shim.js` which
- * provides HTML5 <video> playback and keyboard → remote-key mapping.
+ * The single module referenced by index.html. It wires the core services,
+ * registers every screen with the Router, starts remote input, then either
+ * auto-reconnects to the last account or shows the accounts/login screen.
  *
- * This file is loaded as an ES module (`type="module"` in index.html).
+ * TV vs browser is handled by feature detection inside each subsystem
+ * (every `tizen`/`webapis` call is guarded), so no separate shim is needed.
  * ===================================================================== */
 
-const IS_TIZEN = typeof tizen !== 'undefined';
-const IS_BROWSER = !IS_TIZEN;
+import { Router } from './ui/Router.js';
+import { remote } from './input/RemoteControl.js';
+import { initToasts } from './ui/components/Toast.js';
+import { accounts } from './data/AccountManager.js';
+import { connectAccount } from './ui/flows/connect.js';
+import { VIEW, APP_VERSION } from './core/constants.js';
+import { logger } from './core/Logger.js';
+import { i18n } from './i18n/i18n.js';
+import { theme } from './utils/theme.js';
 
-/* --- Tiny logger (Module 2) --- */
-const Log = {
-    _fmt(tag, args) { return [`[IPTV:${tag}]`, ...args]; },
-    info(...a)  { console.log(...this._fmt('INFO', a)); },
-    warn(...a)  { console.warn(...this._fmt('WARN', a)); },
-    error(...a) { console.error(...this._fmt('ERR', a)); },
-    debug(...a) { console.debug(...this._fmt('DBG', a)); },
-};
+// Screens
+import { LoginScreen } from './ui/screens/LoginScreen.js';
+import { AccountsScreen } from './ui/screens/AccountsScreen.js';
+import { HomeScreen } from './ui/screens/HomeScreen.js';
+import { ListScreen } from './ui/screens/ListScreen.js';
+import { PlayerScreen } from './ui/screens/PlayerScreen.js';
+import { SearchScreen } from './ui/screens/SearchScreen.js';
+import { SettingsScreen } from './ui/screens/SettingsScreen.js';
 
-/* --- Simple event bus (Module 2) --- */
-const Bus = (() => {
-    const _subs = {};
-    return {
-        on(evt, fn) { (_subs[evt] ||= []).push(fn); },
-        off(evt, fn) { _subs[evt] = (_subs[evt] || []).filter(f => f !== fn); },
-        emit(evt, data) { (_subs[evt] || []).forEach(fn => fn(data)); },
-    };
-})();
+const log = logger.child('Main');
 
-/* --- Boot-screen helpers --- */
-const bootScreen = document.getElementById('boot-screen');
-const bootStatus = document.getElementById('boot-status');
-function setBootStatus(msg) {
-    if (bootStatus) bootStatus.textContent = msg;
-    Log.info('Boot:', msg);
-}
+/** Fade out and remove the boot splash. */
 function hideBootScreen() {
-    if (bootScreen) bootScreen.classList.add('is-hidden');
+    const boot = document.getElementById('boot-screen');
+    if (!boot) return;
+    boot.classList.add('is-hidden');
+    setTimeout(() => boot.remove(), 400);
 }
 
-/* === Bootstrap ============================================================ */
-async function boot() {
-    Log.info('Environment:', IS_TIZEN ? 'Samsung Tizen TV' : 'Desktop browser');
+/** Update the boot status text (visible until the first screen shows). */
+function bootStatus(text) {
+    const s = document.getElementById('boot-status');
+    if (s) s.textContent = text;
+}
 
-    setBootStatus('Loading modules…');
+async function bootstrap() {
+    log.info('bootstrapping', { version: APP_VERSION });
 
-    if (IS_BROWSER) {
-        /* Dynamically import the browser dev shim */
-        try {
-            const { initBrowserShim } = await import('./browser-shim.js');
-            await initBrowserShim({ Log, Bus, setBootStatus, hideBootScreen });
-        } catch (err) {
-            Log.error('Failed to load browser shim:', err);
-            setBootStatus('Error: ' + err.message);
+    // 1) Preferences-driven services.
+    theme.init();
+    i18n.init();
+    initToasts();
+
+    // 2) Input.
+    remote.start();
+
+    // 3) Router + screen registry.
+    const container = document.getElementById('app');
+    const router = new Router(container);
+    router
+        .register(VIEW.LOGIN,    (r, p) => new LoginScreen(r, p))
+        .register(VIEW.ACCOUNTS, (r, p) => new AccountsScreen(r, p))
+        .register(VIEW.HOME,     (r, p) => new HomeScreen(r, p))
+        .register(VIEW.LIST,     (r, p) => new ListScreen(r, p))
+        .register(VIEW.PLAYER,   (r, p) => new PlayerScreen(r, p))
+        .register(VIEW.SEARCH,   (r, p) => new SearchScreen(r, p))
+        .register(VIEW.SETTINGS, (r, p) => new SettingsScreen(r, p));
+
+    // 4) Decide the first screen.
+    const active = accounts.getActive();
+    if (active) {
+        bootStatus('Reconnecting…');
+        hideBootScreen();
+        const ok = await connectAccount(router, active, { silent: true });
+        if (!ok) {
+            // Auto-reconnect failed: fall back to the accounts list / login.
+            router.replaceAll(accounts.count ? VIEW.ACCOUNTS : VIEW.LOGIN);
         }
     } else {
-        /* Tizen path — placeholder until Modules 5-7 land */
-        setBootStatus('Tizen mode — modules not yet loaded');
-        // Future: import tizen-specific modules
+        hideBootScreen();
+        router.navigate(accounts.count ? VIEW.ACCOUNTS : VIEW.LOGIN);
     }
+
+    // Expose a minimal debug handle on-device (no credentials).
+    window.__iptv = { router, version: APP_VERSION };
 }
 
-/* Kick off after DOM is ready */
+// Kick off once the DOM is ready.
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
+    document.addEventListener('DOMContentLoaded', bootstrap, { once: true });
 } else {
-    boot();
+    bootstrap();
 }
-
-export { Log, Bus, IS_TIZEN, IS_BROWSER };
