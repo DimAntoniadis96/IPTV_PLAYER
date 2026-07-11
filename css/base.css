@@ -1,0 +1,98 @@
+/* =====================================================================
+ * base.css — Reset, root layout, and boot/splash screen
+ * ---------------------------------------------------------------------
+ * Depends on variables.css. Component/screen/player styles are added in
+ * later modules and live in their own files.
+ * ===================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;                 /* no scrollbars on TV */
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-family);
+    font-size: var(--fs-md);
+    line-height: 1.35;
+    -webkit-font-smoothing: antialiased;
+    user-select: none;                /* no text selection with a remote */
+    cursor: none;                     /* hide the pointer; remote-driven UI */
+}
+
+img { -webkit-user-drag: none; }
+
+/* Remove default focus outline; we render our own focus ring via .is-focused */
+:focus { outline: none; }
+
+.app-root {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-content);
+}
+
+/* ---------- Boot / splash screen ---------- */
+.boot-screen {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-overlay);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-5);
+    background: radial-gradient(circle at 50% 40%, #141a2b 0%, var(--color-bg) 70%);
+    transition: opacity var(--dur-slow) var(--ease-standard);
+}
+.boot-screen.is-hidden { opacity: 0; pointer-events: none; }
+
+.boot-logo { display: flex; align-items: center; gap: var(--sp-3); }
+.boot-play {
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 26px 0 26px 44px;
+    border-color: transparent transparent transparent var(--color-accent);
+    filter: drop-shadow(0 0 12px rgba(56, 132, 255, 0.5));
+}
+.boot-title {
+    font-size: var(--fs-xxl);
+    font-weight: var(--fw-bold);
+    letter-spacing: 1px;
+}
+
+.boot-status {
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+    min-height: 1.4em;
+}
+
+/* Reusable spinner (also used by the player buffer indicator later) */
+.boot-spinner, .spinner {
+    width: 64px; height: 64px;
+    border: 6px solid rgba(255, 255, 255, 0.12);
+    border-top-color: var(--color-accent);
+    border-radius: 50%;
+    animation: spin 900ms linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- Global toast region ---------- */
+.toast-root {
+    position: absolute;
+    left: 50%;
+    bottom: var(--sp-6);
+    transform: translateX(-50%);
+    z-index: var(--z-toast);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    pointer-events: none;
+}
+
+/* Screen-reader-only helper */
+.sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}

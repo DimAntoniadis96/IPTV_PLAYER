@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Samsung Tizen Web Application manifest for the IPTV Player.
+  Target: Samsung Smart TV 2021+ (Tizen 6.0 and newer).
+
+  NOTES
+  - `id` (widget id) is any unique URI you control. It is NOT a real network call.
+  - `tizen:application id` = <10-char package id> + "." + <app name>. Tizen Studio
+    can regenerate the package id for you (Right click project > Properties, or via
+    the signing profile). The placeholder below works for local Developer Mode installs.
+  - No server is hardcoded anywhere. `access origin="*"` + allow-navigation let the
+    app connect to ANY IPTV server the user configures at runtime.
+-->
+<widget xmlns="http://www.w3.org/ns/widgets"
+        xmlns:tizen="http://tizen.org/ns/widgets"
+        id="https://iptv.local/IPTVPlayer"
+        version="1.0.0"
+        viewmodes="maximized">
+
+    <!-- Application identity -->
+    <tizen:application id="1Ab2Cd3Ef4.IPTVPlayer"
+                       package="1Ab2Cd3Ef4"
+                       required_version="6.0"/>
+
+    <!-- Entry point -->
+    <content src="index.html"/>
+
+    <!-- Metadata -->
+    <name>IPTV Player</name>
+    <description>Personal IPTV player for Samsung Tizen TV. Connects only to a user-configured server.</description>
+    <author href="https://iptv.local" email="owner@iptv.local">IPTV Player</author>
+    <icon src="icon.png"/>
+    <license>Private / personal use only. No bundled channels or content.</license>
+
+    <!-- Allow the app to reach ANY user-configured server (no hardcoded host) -->
+    <access origin="*" subdomains="true"></access>
+    <tizen:allow-navigation>*</tizen:allow-navigation>
+
+    <!-- TV profile -->
+    <tizen:profile name="tv"/>
+
+    <!-- Screen feature: Full HD TV canvas -->
+    <feature name="http://tizen.org/feature/screen.size.normal.1080.1920"/>
+
+    <!-- ================= Privileges ================= -->
+    <!-- Network access to the configured IPTV server -->
+    <tizen:privilege name="http://tizen.org/privilege/internet"/>
+    <!-- Query connectivity state to detect "server unavailable" / offline -->
+    <tizen:privilege name="http://tizen.org/privilege/network.get"/>
+    <tizen:privilege name="http://developer.samsung.com/privilege/network.public"/>
+    <!-- Register/capture Samsung remote control keys (Media keys, Ch up/down, colours) -->
+    <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
+    <!-- Read/adjust TV volume + mute from within the app -->
+    <tizen:privilege name="http://tizen.org/privilege/tv.audio"/>
+    <!-- Relaunch / exit the application cleanly -->
+    <tizen:privilege name="http://tizen.org/privilege/application.launch"/>
+    <tizen:privilege name="http://tizen.org/privilege/application.info"/>
+    <!-- Read app metadata (version string shown in Settings) -->
+    <tizen:privilege name="http://tizen.org/privilege/system"/>
+
+    <!-- ================= App settings ================= -->
+    <tizen:setting screen-orientation="landscape"
+                   context-menu="disable"
+                   background-support="disable"
+                   encryption="disable"
+                   install-location="auto"
+                   hwkey-event="enable"/>
+
+    <!-- Content Security Policy: allow media/images/XHR from any configured host over
+         http & https, keep scripts local. Tighten host list once your server is fixed. -->
+    <tizen:content-security-policy>
+        default-src 'self';
+        script-src 'self' 'unsafe-inline';
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data: http: https:;
+        media-src 'self' http: https: blob:;
+        connect-src 'self' http: https:;
+        font-src 'self' data:;
+    </tizen:content-security-policy>
+</widget>

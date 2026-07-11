@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <!-- Fixed Full-HD TV canvas. Tizen renders at 1920x1080; we design at that scale. -->
+    <meta name="viewport" content="width=1920, height=1080, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>IPTV Player</title>
+
+    <!-- ===== Stylesheets (added incrementally per module) ===== -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <!-- css/components.css, css/screens.css, css/player.css added in Module 6/7 -->
+
+</head>
+<body>
+    <!-- Boot / splash screen shown until the app bootstraps -->
+    <div id="boot-screen" class="boot-screen">
+        <div class="boot-logo">
+            <span class="boot-play"></span>
+            <span class="boot-title">IPTV Player</span>
+        </div>
+        <div class="boot-spinner" aria-hidden="true"></div>
+        <div id="boot-status" class="boot-status">Starting&hellip;</div>
+    </div>
+
+    <!-- Single mount point. Screens are rendered into #app by the router (Module 6). -->
+    <main id="app" class="app-root" aria-live="polite"></main>
+
+    <!-- Global toast / message region -->
+    <div id="toast-root" class="toast-root" aria-live="assertive"></div>
+
+    <!--
+      ===== Samsung Product API (required for AVPlay) =====
+      $WEBAPIS is resolved on-device to the platform's webapis bundle. This <script>
+      MUST load before any code that calls webapis.avplay (Module 7). On a desktop
+      browser this 404s harmlessly; the app guards every webapis call.
+    -->
+    <script src="$WEBAPIS/webapis/webapis.js"></script>
+
+    <!-- ===== Application modules (ES modules, loaded in dependency order) ===== -->
+    <!-- Module 2: core utilities — main.js is the single entry point -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Build output
+*.wgt
+/.buildResult/
+/output/
+
+# Tizen Studio / Eclipse
+/.metadata/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Signing (NEVER commit certificates or keys)
+*.p12
+*.pfx
+author.p12
+distributor.p12

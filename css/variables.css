@@ -1,0 +1,73 @@
+/* =====================================================================
+ * variables.css — Design tokens (single source of truth for theming)
+ * ---------------------------------------------------------------------
+ * All colours, sizing and timing live here as CSS custom properties so
+ * the theme can be swapped at runtime (Module 8/9) by overriding these
+ * on :root. Sizes are in px at a 1920x1080 design scale.
+ * ===================================================================== */
+
+:root {
+    /* ---- Palette: dark theme (default) ---- */
+    --color-bg:            #0b0e16;   /* app background            */
+    --color-bg-elev-1:     #121724;   /* cards / panels            */
+    --color-bg-elev-2:     #1a2130;   /* raised elements           */
+    --color-bg-overlay:    rgba(6, 9, 15, 0.78);
+
+    --color-text:          #eef2f8;   /* primary text              */
+    --color-text-muted:    #9aa6bd;   /* secondary text            */
+    --color-text-disabled: #5b6580;
+
+    --color-accent:        #3884ff;   /* brand / focus accent      */
+    --color-accent-2:      #6aa8ff;
+    --color-accent-contrast: #ffffff;
+
+    --color-success:       #35c26b;
+    --color-warning:       #f5a623;
+    --color-danger:        #ff4d5e;
+
+    --color-border:        #232b3d;
+    --color-focus-ring:    #6aa8ff;
+
+    /* ---- Typography (large, TV-legible) ---- */
+    --font-family: "Samsung One", "Segoe UI", "Roboto", system-ui, sans-serif;
+    --fs-xs:   20px;
+    --fs-sm:   24px;
+    --fs-md:   30px;
+    --fs-lg:   38px;
+    --fs-xl:   50px;
+    --fs-xxl:  68px;
+    --fw-regular: 400;
+    --fw-medium:  500;
+    --fw-bold:    700;
+
+    /* ---- Spacing scale ---- */
+    --sp-1: 8px;
+    --sp-2: 16px;
+    --sp-3: 24px;
+    --sp-4: 32px;
+    --sp-5: 48px;
+    --sp-6: 64px;
+    --sp-7: 96px;
+
+    /* ---- Radius & elevation ---- */
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 24px;
+    --shadow-1: 0 4px 18px rgba(0, 0, 0, 0.35);
+    --shadow-focus: 0 0 0 4px var(--color-focus-ring), 0 8px 28px rgba(0, 0, 0, 0.5);
+
+    /* ---- Motion (kept short; TV GPUs are modest) ---- */
+    --dur-fast:   120ms;
+    --dur-normal: 200ms;
+    --dur-slow:   320ms;
+    --ease-standard: cubic-bezier(0.2, 0, 0.2, 1);
+
+    /* ---- Layout ---- */
+    --safe-x: 64px;   /* horizontal TV safe-area padding */
+    --safe-y: 48px;   /* vertical TV safe-area padding   */
+    --z-content: 1;
+    --z-header: 10;
+    --z-overlay: 100;
+    --z-player: 200;
+    --z-toast: 1000;
+}
