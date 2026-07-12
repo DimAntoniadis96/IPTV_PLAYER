@@ -179,6 +179,33 @@ export class AVPlayer {
         }
     }
 
+    /** Absolute seek to a position in seconds (VOD only). */
+    seekTo(seconds) {
+        const s = Math.max(0, seconds);
+        if (this._useAvplay) {
+            try { webapis.avplay.seekTo(Math.round(s * 1000)); } catch (e) {}
+        } else {
+            try { this._media.currentTime = s; } catch (e) {}
+        }
+    }
+
+    /** Total duration in seconds (0 if unknown / live). */
+    getDuration() {
+        if (this._useAvplay) {
+            try { const d = webapis.avplay.getDuration(); return d > 0 ? d / 1000 : 0; } catch (e) { return 0; }
+        }
+        const d = this._media.duration;
+        return Number.isFinite(d) ? d : 0;
+    }
+
+    /** Current playback position in seconds. */
+    getCurrentTime() {
+        if (this._useAvplay) {
+            try { return webapis.avplay.getCurrentTime() / 1000; } catch (e) { return 0; }
+        }
+        return this._media.currentTime || 0;
+    }
+
     /** Toggle mute via the TV audio control (or the <video> element). */
     toggleMute() {
         this._muted = !this._muted;

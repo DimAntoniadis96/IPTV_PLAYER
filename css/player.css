@@ -1,5 +1,5 @@
 /* =====================================================================
- * player.css — Fullscreen player + controls (warm cinema)
+ * player.css — Professional fullscreen player + controls (warm cinema)
  * ---------------------------------------------------------------------
  * On Tizen, AVPlay draws video BEHIND the DOM; while playing we make the
  * body transparent (body.av-playing) so that plane shows through.
@@ -8,78 +8,94 @@
 body.av-playing { background: transparent; }
 body.av-playing .app-root { background: transparent; }
 
-.player-screen {
-    position: absolute; inset: 0;
-    z-index: var(--z-player);
-    background: transparent;
-    padding: 0;
-}
+.player-screen { position: absolute; inset: 0; z-index: var(--z-player); background: transparent; padding: 0; }
 
 .player-surface { position: absolute; inset: 0; }
 .av-surface { position: absolute; inset: 0; width: 100%; height: 100%; background: #000; }
 body.av-playing object.av-surface { background: transparent; }
 
 /* Buffering spinner */
-.player-buffering {
-    position: absolute; inset: 0;
-    display: none; align-items: center; justify-content: center; z-index: 3;
-}
+.player-buffering { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; z-index: 3; }
 .player-buffering.is-visible { display: flex; }
 .player-buffering .spinner { width: 104px; height: 104px; border-width: 8px; }
 
-/* Transient center icon */
+/* Transient center icon (play/pause/seek/skip feedback) */
 .player-center-icon {
     position: absolute; top: 50%; left: 50%;
     transform: translate(-50%, -50%) scale(0.8);
     width: 168px; height: 168px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 84px; color: #fff;
+    font-size: 78px; color: #fff;
     background: rgba(12, 8, 4, 0.55);
     box-shadow: 0 12px 50px rgba(0,0,0,.6);
-    opacity: 0;
-    transition: opacity var(--dur-normal), transform var(--dur-normal);
+    opacity: 0; transition: opacity var(--dur-normal), transform var(--dur-normal);
     z-index: 4; pointer-events: none;
 }
-.player-center-icon.is-visible { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.player-center-icon.is-visible { opacity: 0.96; transform: translate(-50%, -50%) scale(1); }
 
-/* Bottom info bar */
-.player-infobar {
+/* ---------- Controls bar ---------- */
+.player-controls {
     position: absolute; left: 0; right: 0; bottom: 0;
-    display: flex; align-items: center; gap: var(--sp-4);
-    padding: var(--sp-6) var(--safe-x) var(--sp-5);
+    display: flex; flex-direction: column; gap: var(--sp-3);
+    padding: var(--sp-7) var(--safe-x) var(--sp-5);
     background: var(--grad-fade-bottom);
-    transform: translateY(48px); opacity: 0;
+    transform: translateY(60px); opacity: 0;
     transition: opacity var(--dur-normal), transform var(--dur-normal);
     z-index: 5;
 }
-.player-infobar.is-visible { opacity: 1; transform: none; }
-.player-info-logo {
-    width: 104px; height: 104px; flex: none;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: var(--radius-md);
-    background: var(--color-bg-elev-1);
-    border: 1px solid var(--color-border-soft);
-    overflow: hidden;
+.player-controls.is-visible { opacity: 1; transform: none; }
+
+.pc-info { display: flex; flex-direction: column; gap: 6px; }
+.pc-title { font-size: var(--fs-xl); font-weight: var(--fw-bold); text-shadow: 0 2px 14px rgba(0,0,0,.8); }
+.pc-meta { font-size: var(--fs-sm); color: var(--color-accent); font-weight: var(--fw-semibold); text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Progress (VOD) */
+.pc-progress { display: flex; align-items: center; gap: var(--sp-3); }
+.pc-time { font-size: var(--fs-sm); color: var(--color-text); font-weight: var(--fw-medium); min-width: 110px; }
+.pc-time:last-child { text-align: right; }
+.pc-bar {
+    position: relative; flex: 1; height: 10px;
+    border-radius: var(--radius-pill);
+    background: rgba(255,255,255,0.18);
+    overflow: visible;
 }
-.player-info-logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
-.player-info-text { display: flex; flex-direction: column; gap: 6px; }
-.player-info-name { font-size: var(--fs-xl); font-weight: var(--fw-bold); text-shadow: 0 2px 12px rgba(0,0,0,.7); }
-.player-info-meta {
-    font-size: var(--fs-sm); color: var(--color-accent); font-weight: var(--fw-semibold);
-    letter-spacing: 0.5px; text-transform: uppercase;
+.pc-fill {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 0%;
+    border-radius: var(--radius-pill);
+    background: var(--grad-accent);
+}
+.pc-handle {
+    position: absolute; top: 50%; left: 0%;
+    width: 26px; height: 26px; border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.6), 0 0 0 4px rgba(255,138,52,.5);
+}
+
+/* LIVE badge (live TV) */
+.pc-live {
+    display: inline-flex; align-items: center; gap: var(--sp-1);
+    font-size: var(--fs-md); font-weight: var(--fw-bold); letter-spacing: 1px;
+    color: var(--color-text);
+}
+.pc-live-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--color-danger); box-shadow: 0 0 12px var(--color-danger); animation: livepulse 1.6s ease-in-out infinite; }
+@keyframes livepulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+/* Control hints */
+.pc-hints { display: flex; gap: var(--sp-5); color: var(--color-text-muted); font-size: var(--fs-xs); }
+.pc-hint { display: inline-flex; align-items: center; gap: var(--sp-1); }
+.pc-hint-key {
+    display: inline-block; padding: 4px 12px; border-radius: var(--radius-pill);
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.16);
+    color: var(--color-text); font-size: 18px;
 }
 
 /* Error panel */
 .player-error {
-    position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    padding: var(--sp-6) var(--sp-7);
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    text-align: center; padding: var(--sp-6) var(--sp-7);
     background: linear-gradient(160deg, rgba(36,24,17,0.96), rgba(18,12,7,0.96));
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-2);
-    z-index: 6;
+    border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2); z-index: 6;
 }
 .player-error.is-hidden { display: none; }
 .player-error-title { font-size: var(--fs-lg); font-weight: var(--fw-bold); color: var(--color-danger); }
