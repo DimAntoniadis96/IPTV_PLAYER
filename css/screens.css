@@ -79,7 +79,7 @@
     position: relative; overflow: hidden;
 }
 .home-tile::after {
-    content: ''; position: absolute; inset: 0;
+    content: ''; position: absolute; top: 0; right: 0; bottom: 0; left: 0;
     background: radial-gradient(120% 80% at 50% -20%, rgba(255,138,52,0.16) 0%, rgba(255,138,52,0) 60%);
     opacity: 0; transition: opacity var(--dur-normal);
 }

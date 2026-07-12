@@ -41,8 +41,12 @@
     -->
     <script src="$WEBAPIS/webapis/webapis.js"></script>
 
-    <!-- ===== Application modules (ES modules, loaded in dependency order) ===== -->
-    <!-- Module 2: core utilities — main.js is the single entry point -->
-    <script type="module" src="js/main.js"></script>
+    <!-- ===== Application bundle =====
+      Built with esbuild from js/main.js, transpiled down to Chromium 69/76
+      (the Tizen 6.0 web engine) so newer syntax (optional chaining, nullish
+      coalescing, etc.) works on the TV. Regenerate with:
+        npx esbuild js/main.js --bundle --format=iife --target=chrome69 --outfile=dist/app.js
+    -->
+    <script src="dist/app.js"></script>
 </body>
 </html>

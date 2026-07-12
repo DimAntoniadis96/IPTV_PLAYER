@@ -24,11 +24,11 @@ html.is-tv, html.is-tv * { cursor: none !important; }
 img { -webkit-user-drag: none; }
 :focus { outline: none; }
 
-.app-root { position: absolute; inset: 0; z-index: var(--z-content); }
+.app-root { position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: var(--z-content); }
 
 /* ---------- Boot / splash ---------- */
 .boot-screen {
-    position: absolute; inset: 0;
+    position: absolute; top: 0; right: 0; bottom: 0; left: 0;
     z-index: var(--z-overlay);
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
