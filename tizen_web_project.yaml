@@ -1,0 +1,258 @@
+# Project type [web_app, test_runner]
+project_type: web_app
+
+# Default profile, Tizen API version
+profile: tv
+api_version: "6.0"
+
+# Build type [Debug/ Release/ Test]
+build_type: Debug
+
+# Output name for application
+output_name: IPTVPlayer
+
+# Output path for build
+output_path: ""
+
+# Enable size optimization of wgt for web workspace
+opt: false
+
+# Signing profile to be used for Tizen package signing
+# If value is empty: "", active signing profile will be used
+# Else If value is ".", default signing profile will be used
+signing_profile: ""
+
+# list of certs in web project (.trust-anchor)
+trust_anchor: []
+
+# list of files in web project (.html,.css etc) and resources
+files:
+  - .git/COMMIT_EDITMSG
+  - .git/FETCH_HEAD
+  - .git/HEAD
+  - .git/ORIG_HEAD
+  - .git/config
+  - .git/description
+  - .git/hooks/applypatch-msg.sample
+  - .git/hooks/commit-msg.sample
+  - .git/hooks/fsmonitor-watchman.sample
+  - .git/hooks/post-update.sample
+  - .git/hooks/pre-applypatch.sample
+  - .git/hooks/pre-commit.sample
+  - .git/hooks/pre-merge-commit.sample
+  - .git/hooks/pre-push.sample
+  - .git/hooks/pre-rebase.sample
+  - .git/hooks/pre-receive.sample
+  - .git/hooks/prepare-commit-msg.sample
+  - .git/hooks/push-to-checkout.sample
+  - .git/hooks/sendemail-validate.sample
+  - .git/hooks/update.sample
+  - .git/index
+  - .git/info/exclude
+  - .git/logs/HEAD
+  - .git/logs/refs/heads/main
+  - .git/logs/refs/remotes/origin/main
+  - .git/objects/06/77b600326c411f40a77548373be9325cb31849
+  - .git/objects/07/a9c3598478922a1d35208c1cbaa1598472d0ee
+  - .git/objects/08/01587b17dcc8c27b7377d52a86f1877154ddfc
+  - .git/objects/0a/4fa843cb8496277b4a402863f2c680fe326fd1
+  - .git/objects/0e/6c396794745983a2a9cc51eb1a4879f1f910ae
+  - .git/objects/0f/6c594c9e62af43eed5526bcabb70d5dc29d4a4
+  - .git/objects/0f/76a3b6000ea82de8314de7a977b58d064adfc4
+  - .git/objects/16/0bdf200922a5225b1bc178069af1de9d4b924e
+  - .git/objects/16/e8f338059b09c859f8e4bf53dd5ec5485bc39b
+  - .git/objects/17/04dfa9615227abd857567b2c228b770f147235
+  - .git/objects/19/1b14185c949506ec2ae13231b69baaaa29e1fe
+  - .git/objects/1c/039d8a85c995a09c76fe32280b69636f454b14
+  - .git/objects/1c/63a5b13d519cf745e5a449e19d94939a0753ce
+  - .git/objects/1d/94dc607600b81ace3363a8e45a81e01f00a538
+  - .git/objects/1e/1bf25bae467a0c1908600a40e1e18ca5b8ec1c
+  - .git/objects/1e/6b6432ac75e5167f87fd054091a83c9db8fb47
+  - .git/objects/20/b5f885dd5aaa78709672b795df3e32c5e073c3
+  - .git/objects/22/e38d44031de46d13f9b43b0cf681e2beb11fa5
+  - .git/objects/24/59d9c25b15a155d4a60c7f676dd580a7297046
+  - .git/objects/25/fdb7aa56eaab3b013c11e861c6e7d17b877070
+  - .git/objects/28/18eea849243145d396026b3427aaf9ff7f810c
+  - .git/objects/2d/5a1b6b24ba7b3df279b674fbf0faf393b86a4c
+  - .git/objects/2d/ab8778aa3351bfa0c5e70dc4b2dd34890a261a
+  - .git/objects/33/64a4fcece548b928c2467f64252f85eeb41fd5
+  - .git/objects/35/b0b6e693b6e646618381cd0b149e29fea1c003
+  - .git/objects/36/a5977772725de6a9dea9d14e242ecbab145dda
+  - .git/objects/36/bd0a84fb6bc493c5f76b81a9bb5d5f590ae460
+  - .git/objects/39/af9ae22810dabcc22ea3db88a41ea4b591f407
+  - .git/objects/3c/6c460f0023714148a059f0084ad5e7e50d08eb
+  - .git/objects/3f/43c64fcc73b7d2fcf441e134897fd2daf37332
+  - .git/objects/43/0bde4b7ba516c1aa7c056af566f46b6364a633
+  - .git/objects/4f/ac459b6e5f71df8f1a21857e758114a61252c2
+  - .git/objects/50/0a60b9d1199e4d6884b25649b3fefe21e05e6f
+  - .git/objects/50/1bf132ffb69e95cfbf6def54ff1988686f6de3
+  - .git/objects/50/be89d56158091a27e235dbdbecd849782a9f6a
+  - .git/objects/51/d3081f5fdb6aa967a0f1e0dbb9eeb267b54685
+  - .git/objects/51/fcafad699b5c09a6872f37905aa686ee9215d2
+  - .git/objects/55/043e2e13ec317ef7de63003e33daad675c48da
+  - .git/objects/57/55dd4639e8b7873fd494da30457e9b992ee970
+  - .git/objects/59/ae0f74075965497f1117f3eb977258773cb7c0
+  - .git/objects/5b/547ff1dddb39eeeb8b940aaa7ad29b34d36db0
+  - .git/objects/5e/9ce45061ee5646027ef6904a3a1636c8408c56
+  - .git/objects/5f/269d9078d12dd7d1c7c61bae75de2b9a6ebad5
+  - .git/objects/64/434e4dbb478a14132e053163ff3cbe89db4efc
+  - .git/objects/66/48b87b5380235d51a8551d82c829353296af81
+  - .git/objects/68/6e48defa7f497054514e010fddc41bfac19e33
+  - .git/objects/69/52177d02723a4bfb99b28711172de7d6827230
+  - .git/objects/6b/7d1077acbf1394b8282c8010cf3c1eda8438d5
+  - .git/objects/6f/0bf8757b59418419bd769af20501954ecdf25c
+  - .git/objects/70/74b017fd450c2272fec379897625900e4c175b
+  - .git/objects/73/c7988e42d7140d446ec42e9df8febab79dfcb1
+  - .git/objects/79/8489481b52cadd759e9c303e9b3a0020a13ad2
+  - .git/objects/82/bfaec6607424407d5dc5703609f9391daf6ca0
+  - .git/objects/83/9082c3be0a8ae1608e1d8c06c096ffaf45421e
+  - .git/objects/8a/f2df6320b4b23bdd57acea917686c6a586df0f
+  - .git/objects/8a/f80fc037d84800abc58922c0cf51a63d758850
+  - .git/objects/90/25d69d5e0cdf889418a96661b2caa175d4729c
+  - .git/objects/93/47be3fea4acd73f3cb3876ef3ad4969de99666
+  - .git/objects/95/41ef63da9006b6395b6fb172b218991331abd6
+  - .git/objects/96/35ffc47c0cd8fa96e04e4d96fef2cbe8a22c5d
+  - .git/objects/98/642b3647291af91d03d7c19033b3b64d322957
+  - .git/objects/98/e094e65b68c690af6e070a593f27024e2e0dcd
+  - .git/objects/99/5afdaf96a4cf07b97975af41210d05e5a5a80c
+  - .git/objects/9a/7226fb8504b7cd745153f0b6fc7983585891fc
+  - .git/objects/9a/d19cf46179d1ecf3356cc03f30dda431f9ea70
+  - .git/objects/9d/18b8061b92c39973b3d772d5064e04d27fcf01
+  - .git/objects/9e/96bbe59b65a6c08b1cd186693db2a43c947ce6
+  - .git/objects/9e/e658610108bdf01f7cf621ce232e4f1675a571
+  - .git/objects/9e/f6c497ec2cf1c197a202c5ce5d00fbafa08702
+  - .git/objects/9e/f99921756deefa34c0e16423e649f4f345b05b
+  - .git/objects/a1/f878ab1187efc155ddf041f73071011fc762ef
+  - .git/objects/a7/74e20099f3ad09a5ec688d645637a45ffc874e
+  - .git/objects/a8/9b9d096f91e164a6f23e49aa9ac626bad508fd
+  - .git/objects/a9/9375c2b35820dcd708976951f487f87bc18d0c
+  - .git/objects/ad/9735431ab67b8908b84cb569edbbbb7ef8831e
+  - .git/objects/b0/51d4dd988c59c5b6e561f14d76b64b3e52ba80
+  - .git/objects/b1/53cf0aa2428dccb32dd03f797b8e7efb636e51
+  - .git/objects/b2/ae5c59d532bcca4528fae417aef3f307a19fc5
+  - .git/objects/b3/2a5e93fc2f9406178c4e9a5f6f6e614e8d7db6
+  - .git/objects/b4/0b89656020f0968832d4056cd4609ea7c61704
+  - .git/objects/b5/63f8e8d7f304d45948fe64e1126b30d55a9c71
+  - .git/objects/b5/afb1fb48a88e6b8470bd7088dbee415f1e272a
+  - .git/objects/b6/9e6866912150c087b57d9b2ff54273d5cadb38
+  - .git/objects/b8/4a2283d03c90083b0625d5059cdcbc96513f75
+  - .git/objects/bc/6ba908b577f7369edc913c6f716cc05e4fed2c
+  - .git/objects/bd/d5344cd06ecf1dfd996e7600f48d05c103fadf
+  - .git/objects/bf/972d2766cf7b07e3af16f459d978956fe7c0bd
+  - .git/objects/bf/ab6d50cba7873c7dbf6e9f27a65dbc89966163
+  - .git/objects/c0/d6b4a5188db346ce589f04551c37f18fdedf0a
+  - .git/objects/c5/a3e50a20fa8b087297d15eccf5464b8037ebe4
+  - .git/objects/c6/256cc04890a52a4c25325a2c3e80f7b62ffb65
+  - .git/objects/cf/ab002da21676c0aac2520311b6862e42190ffd
+  - .git/objects/d0/5cd539f39cc8fa292fc5261cd37e4f8931d6b2
+  - .git/objects/d3/f6371d0664cfa85b2539fbdc81bcc87713e4ca
+  - .git/objects/d4/43a2699d3504ba67a27bc51b345c9e39598d46
+  - .git/objects/d8/47547505752b8bb6c6825794a068497939db0e
+  - .git/objects/db/4c33e66d299886b9b37b0f81e0b716d3da0859
+  - .git/objects/dc/571bce4269dc98b0757302a769faf7076a4dfb
+  - .git/objects/dd/635867ef6e592c081df22b99804397aa42137f
+  - .git/objects/dd/de65e1b505458335527c70c335553d549252e2
+  - .git/objects/e0/d39e02ca7e665b3535d11cb825f86535c87180
+  - .git/objects/e3/616b7201fc17596f5902cd271aa6d83a38f3d6
+  - .git/objects/e4/07b98a840f095bd36c872fee59fc399dc6c79b
+  - .git/objects/e4/bdde2d066e4f416c5aaad7cbdf14b88f29a599
+  - .git/objects/e5/1f3b5035004371cc3f15e35303d51f53846f1b
+  - .git/objects/ea/717c3208d119c5c8d47723aa4ffa1cd4987ff6
+  - .git/objects/eb/92a930ba333aa5aa318f21ab32a1008214f9d1
+  - .git/objects/ed/f0b6190e6c6fce89fe24182ee960fad7f08db1
+  - .git/objects/ef/7d75f877f87bba52499f641d8aad4e63a35906
+  - .git/objects/f2/e06877f8f19dd78c61737289c3a33e5fc6659f
+  - .git/objects/f9/310e57b448540563585ab46cdd2ad0788bcca1
+  - .git/objects/f9/7945d2c2a86add8e533771e3a75daee85a445a
+  - .git/objects/fb/0a96893506be869bb40341003b3ef93185e21b
+  - .git/objects/fb/1027c0de17f3bfcb40faef4295edf6bc5570a5
+  - .git/objects/fb/536847f8b288d84fc578bda0cfcc1f670b3c1b
+  - .git/objects/ff/ee262f9f7e7b403eb71d2d7242f517439c8ef5
+  - .git/refs/heads/main
+  - .git/refs/remotes/origin/main
+  - .gitignore
+  - .project
+  - .tproject
+  - README.md
+  - assets/icons/icon-117.png
+  - css/base.css
+  - css/components.css
+  - css/player.css
+  - css/screens.css
+  - css/themes.css
+  - css/variables.css
+  - dev-server.js
+  - docs/BUILD.md
+  - icon.png
+  - index.html
+  - js/.gitkeep
+  - js/browser-shim.js
+  - js/core/EventBus.js
+  - js/core/Http.js
+  - js/core/Logger.js
+  - js/core/Prefs.js
+  - js/core/Store.js
+  - js/core/UrlBuilder.js
+  - js/core/constants.js
+  - js/data/AccountManager.js
+  - js/data/AuthService.js
+  - js/data/Favorites.js
+  - js/data/History.js
+  - js/data/M3UParser.js
+  - js/data/PlaylistService.js
+  - js/data/XtreamClient.js
+  - js/i18n/en.js
+  - js/i18n/es.js
+  - js/i18n/i18n.js
+  - js/input/FocusManager.js
+  - js/input/Keys.js
+  - js/input/RemoteControl.js
+  - js/main.js
+  - js/player/AVPlayer.js
+  - js/ui/Router.js
+  - js/ui/View.js
+  - js/ui/components/Loading.js
+  - js/ui/components/Toast.js
+  - js/ui/components/VirtualGrid.js
+  - js/ui/flows/connect.js
+  - js/ui/screens/AccountsScreen.js
+  - js/ui/screens/HomeScreen.js
+  - js/ui/screens/ListScreen.js
+  - js/ui/screens/LoginScreen.js
+  - js/ui/screens/PlayerScreen.js
+  - js/ui/screens/SearchScreen.js
+  - js/ui/screens/SettingsScreen.js
+  - js/utils/dom.js
+  - js/utils/format.js
+  - js/utils/theme.js
+  - package.json
+  - test-playlist.m3u
+
+# list of files to exclude based on the matched patterns
+excludes:
+  - Build/*
+  - Debug/*
+  - Directory.Build.targets
+  - Release/*
+  - Test/*
+  - \.Build/.*
+  - \.buildResult/.*
+  - \.csproj
+  - \.externalToolBuilders/.*
+  - \.gn
+  - \.obj/.*
+  - \.package/.*
+  - \.project
+  - \.rds_delta
+  - \.sdk_delta.info
+  - \.settings/.*
+  - \.sign/.*
+  - \.tizen-ui-builder-tool.xml
+  - \.tproject
+  - \.wgt
+  - tizen_web_project.yaml
+  - webUnitTest/*
+
+# project dependencies
+deps: []
+

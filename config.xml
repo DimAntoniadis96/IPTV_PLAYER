@@ -42,16 +42,19 @@
     <!-- Screen feature: Full HD TV canvas -->
     <feature name="http://tizen.org/feature/screen.size.normal.1080.1920"/>
 
-    <!-- ================= Privileges ================= -->
-    <!-- Network access to the configured IPTV server -->
+    <!-- ================= Privileges (public-level only) =================
+         Kept minimal to guarantee the package installs with a standard
+         Samsung TV distributor certificate. All three below are PUBLIC level:
+           - internet      : network access to the configured server
+           - tv.inputdevice: register Samsung remote keys (Media/Ch/colours)
+           - application.launch : relaunch/exit the app
+         (Removed tv.audio + developer.samsung.com/network.public: not
+          essential, and a possible privilege-level cause of install reject.
+          The app already degrades gracefully without them — mute via
+          tvaudiocontrol is wrapped in try/catch, offline is detected via
+          fetch failures.) -->
     <tizen:privilege name="http://tizen.org/privilege/internet"/>
-    <!-- Query connectivity / network state (Samsung TV) -->
-    <tizen:privilege name="http://developer.samsung.com/privilege/network.public"/>
-    <!-- Register/capture Samsung remote control keys (Media keys, Ch up/down, colours) -->
     <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
-    <!-- Read/adjust TV volume + mute from within the app -->
-    <tizen:privilege name="http://tizen.org/privilege/tv.audio"/>
-    <!-- Relaunch / exit the application cleanly -->
     <tizen:privilege name="http://tizen.org/privilege/application.launch"/>
 
     <!-- ================= App settings ================= -->
