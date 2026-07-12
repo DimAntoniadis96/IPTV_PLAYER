@@ -1,8 +1,5 @@
 /* =====================================================================
- * base.css — Reset, root layout, and boot/splash screen
- * ---------------------------------------------------------------------
- * Depends on variables.css. Component/screen/player styles are added in
- * later modules and live in their own files.
+ * base.css — Reset, root layout, boot/splash (warm cinema)
  * ===================================================================== */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -10,42 +7,35 @@
 html, body {
     width: 1920px;
     height: 1080px;
-    overflow: hidden;                 /* no scrollbars on TV */
-    background: var(--color-bg);
+    overflow: hidden;
+    background: var(--grad-app-bg);
     color: var(--color-text);
     font-family: var(--font-family);
     font-size: var(--fs-md);
     line-height: 1.35;
     -webkit-font-smoothing: antialiased;
-    user-select: none;                /* no text selection with a remote */
+    text-rendering: optimizeLegibility;
+    user-select: none;
 }
 
-/* Hide the pointer ONLY on the TV (class added at bootstrap when running on
-   Tizen). In a desktop browser the cursor stays visible for development. */
+/* Hide the pointer ONLY on the TV (class added at bootstrap on Tizen). */
 html.is-tv, html.is-tv * { cursor: none !important; }
 
 img { -webkit-user-drag: none; }
-
-/* Remove default focus outline; we render our own focus ring via .is-focused */
 :focus { outline: none; }
 
-.app-root {
-    position: absolute;
-    inset: 0;
-    z-index: var(--z-content);
-}
+.app-root { position: absolute; inset: 0; z-index: var(--z-content); }
 
-/* ---------- Boot / splash screen ---------- */
+/* ---------- Boot / splash ---------- */
 .boot-screen {
-    position: absolute;
-    inset: 0;
+    position: absolute; inset: 0;
     z-index: var(--z-overlay);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
     gap: var(--sp-5);
-    background: radial-gradient(circle at 50% 40%, #141a2b 0%, var(--color-bg) 70%);
+    background:
+        radial-gradient(900px 600px at 50% 38%, rgba(255,138,52,0.18) 0%, rgba(255,138,52,0) 60%),
+        var(--color-bg);
     transition: opacity var(--dur-slow) var(--ease-standard);
 }
 .boot-screen.is-hidden { opacity: 0; pointer-events: none; }
@@ -54,46 +44,41 @@ img { -webkit-user-drag: none; }
 .boot-play {
     width: 0; height: 0;
     border-style: solid;
-    border-width: 26px 0 26px 44px;
+    border-width: 30px 0 30px 50px;
     border-color: transparent transparent transparent var(--color-accent);
-    filter: drop-shadow(0 0 12px rgba(56, 132, 255, 0.5));
+    filter: drop-shadow(0 0 22px rgba(255, 138, 52, 0.65));
 }
 .boot-title {
     font-size: var(--fs-xxl);
     font-weight: var(--fw-bold);
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
+    background: var(--grad-accent);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
 }
+.boot-status { font-size: var(--fs-sm); color: var(--color-text-muted); min-height: 1.4em; }
 
-.boot-status {
-    font-size: var(--fs-sm);
-    color: var(--color-text-muted);
-    min-height: 1.4em;
-}
-
-/* Reusable spinner (also used by the player buffer indicator later) */
+/* Spinner (shared with player buffer + loading overlay) */
 .boot-spinner, .spinner {
-    width: 64px; height: 64px;
-    border: 6px solid rgba(255, 255, 255, 0.12);
+    width: 68px; height: 68px;
+    border: 6px solid rgba(255, 255, 255, 0.10);
     border-top-color: var(--color-accent);
+    border-right-color: var(--color-accent-2);
     border-radius: 50%;
-    animation: spin 900ms linear infinite;
+    animation: spin 850ms linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ---------- Global toast region ---------- */
+/* ---------- Toast region ---------- */
 .toast-root {
     position: absolute;
-    left: 50%;
-    bottom: var(--sp-6);
+    left: 50%; bottom: var(--sp-6);
     transform: translateX(-50%);
     z-index: var(--z-toast);
-    display: flex;
-    flex-direction: column;
-    gap: var(--sp-2);
+    display: flex; flex-direction: column; gap: var(--sp-2);
     pointer-events: none;
 }
 
-/* Screen-reader-only helper */
 .sr-only {
     position: absolute; width: 1px; height: 1px;
     padding: 0; margin: -1px; overflow: hidden;

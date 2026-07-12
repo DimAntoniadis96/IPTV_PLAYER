@@ -1,34 +1,71 @@
 /* =====================================================================
- * themes.css — Theme overrides (applied via <html data-theme="…">)
+ * themes.css — Alternate themes (applied via <html data-theme="…">)
  * ---------------------------------------------------------------------
- * "dark" is the default from variables.css; these blocks override tokens
- * for the other themes. Add a new theme by copying a block + adding it to
- * THEMES in js/utils/theme.js.
+ * The default (data-theme="dark") is the Warm Amber / Cinema palette from
+ * variables.css. Below are two coherent alternates. Settings → Theme
+ * cycles dark → midnight → light.
  * ===================================================================== */
 
-/* Midnight Blue — deeper blues, teal accent. */
+/* ---------- Midnight Blue (cool premium) ---------- */
 html[data-theme="midnight"] {
-    --color-bg:        #05070f;
-    --color-bg-elev-1: #0c1428;
-    --color-bg-elev-2: #142445;
-    --color-accent:    #34d0c4;
-    --color-accent-2:  #6ff0e6;
-    --color-focus-ring: #6ff0e6;
-    --color-border:    #1b2b4d;
+    --color-bg:            #05070f;
+    --color-bg-elev-1:     #0c1428;
+    --color-bg-elev-2:     #142445;
+    --color-bg-elev-3:     #1c3160;
+    --color-bg-overlay:    rgba(4, 6, 14, 0.85);
+
+    --color-text:          #eaf1fc;
+    --color-text-muted:    #9db0d2;
+    --color-text-disabled: #5d6a86;
+
+    --color-accent:        #49b6ff;
+    --color-accent-2:      #7c5cff;
+    --color-accent-soft:   rgba(73, 182, 255, 0.16);
+    --color-accent-contrast:#04101f;
+
+    --color-border:        #1b2b4d;
+    --color-border-soft:   rgba(73, 182, 255, 0.16);
+    --color-focus-ring:    #8fd0ff;
+
+    --grad-accent:  linear-gradient(135deg, #6fd0ff 0%, #7c5cff 100%);
+    --grad-surface: linear-gradient(158deg, #0e1830 0%, #070c18 100%);
+    --grad-tile:    linear-gradient(160deg, #122142 0%, #0a1122 100%);
+    --grad-app-bg:  radial-gradient(1200px 700px at 80% -8%, rgba(124,92,255,0.16) 0%, rgba(124,92,255,0) 55%),
+                    radial-gradient(1100px 800px at 8% 110%, rgba(73,182,255,0.12) 0%, rgba(73,182,255,0) 55%),
+                    #05070f;
+    --glow-accent:  0 10px 40px rgba(73, 182, 255, 0.42);
+    --shadow-focus: 0 0 0 3px rgba(143, 208, 255, 0.95), 0 16px 46px rgba(124, 92, 255, 0.4);
 }
 
-/* Light — bright surfaces, dark text. */
+/* ---------- Light (warm-tinted) ---------- */
 html[data-theme="light"] {
-    --color-bg:        #f3f5fa;
-    --color-bg-elev-1: #ffffff;
-    --color-bg-elev-2: #e7ecf5;
-    --color-bg-overlay: rgba(240, 243, 250, 0.86);
-    --color-text:      #101623;
-    --color-text-muted:#4b5670;
-    --color-text-disabled: #9aa3ba;
-    --color-accent:    #2563eb;
-    --color-accent-2:  #4f83f0;
-    --color-accent-contrast: #ffffff;
-    --color-border:    #d3dae8;
-    --color-focus-ring:#2563eb;
+    --color-bg:            #f4f1ea;
+    --color-bg-elev-1:     #ffffff;
+    --color-bg-elev-2:     #efe8dc;
+    --color-bg-elev-3:     #e7dccb;
+    --color-bg-overlay:    rgba(244, 241, 234, 0.88);
+
+    --color-text:          #1d150c;
+    --color-text-muted:    #6a5c48;
+    --color-text-disabled: #9c8f7c;
+
+    --color-accent:        #d9791a;
+    --color-accent-2:      #ff7a34;
+    --color-accent-soft:   rgba(217, 121, 26, 0.14);
+    --color-accent-contrast:#ffffff;
+
+    --color-border:        #ddd3c2;
+    --color-border-soft:   rgba(217, 121, 26, 0.22);
+    --color-focus-ring:    #e0891f;
+
+    --grad-accent:  linear-gradient(135deg, #ffb347 0%, #ff7a34 100%);
+    --grad-surface: linear-gradient(158deg, #ffffff 0%, #f1ebe0 100%);
+    --grad-tile:    linear-gradient(160deg, #ffffff 0%, #f0e9dd 100%);
+    --grad-fade-bottom: linear-gradient(to top, rgba(244,241,234,0.96) 0%, rgba(244,241,234,0) 100%);
+    --grad-app-bg:  radial-gradient(1200px 700px at 80% -10%, rgba(255,122,52,0.10) 0%, rgba(255,122,52,0) 55%),
+                    #f4f1ea;
+    --shadow-1: 0 8px 26px rgba(120, 90, 50, 0.16);
+    --shadow-2: 0 16px 50px rgba(120, 90, 50, 0.2);
+    --glow-accent: 0 10px 34px rgba(217, 121, 26, 0.32);
+    --shadow-focus: 0 0 0 3px rgba(224, 137, 31, 0.9), 0 14px 40px rgba(255, 122, 52, 0.3);
 }
