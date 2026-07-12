@@ -706,7 +706,7 @@
     return node;
   }
   function lazyImage(src, opts = {}) {
-    const img = el("img", { class: "lazy-img", alt: opts.alt || "" });
+    const img = el("img", { class: "lazy-img", alt: opts.alt || "", decoding: "async" });
     img._pendingSrc = src || "";
     img.load = () => {
       if (!img._pendingSrc) {
@@ -2341,6 +2341,8 @@
       this.items = [];
       this.focusedIndex = 0;
       this._viewportH = 720;
+      this._lastStart = -1;
+      this._lastEnd = -1;
       this.layer = el("div", { class: "vgrid-layer" });
       Object.assign(this.layer.style, {
         display: "grid",
@@ -2361,6 +2363,8 @@
       const rows = Math.ceil(this.items.length / this.columns);
       this.spacer.style.height = `${rows * this.rowHeight}px`;
       this.el.scrollTop = 0;
+      this._lastStart = -1;
+      this._lastEnd = -1;
       this._render();
     }
     /** Measure viewport once the element is in the DOM. */
@@ -2435,7 +2439,12 @@
       if (top < this.el.scrollTop) this.el.scrollTop = top;
       else if (bottom > this.el.scrollTop + this._viewportH) this.el.scrollTop = bottom - this._viewportH;
     }
-    /** Render only the cells within the current window. */
+    /**
+     * Render only the cells within the current window. CRITICAL for TV perf:
+     * if the visible window hasn't changed (i.e. focus moved but we didn't
+     * scroll to new rows), we DON'T rebuild the DOM or reload images — we just
+     * move the focus highlight. Rebuilding every keypress kills a weak TV GPU.
+     */
     _render() {
       const len = this.items.length;
       const scrollTop = this.el.scrollTop;
@@ -2443,17 +2452,31 @@
       const visibleRows = Math.ceil(this._viewportH / this.rowHeight) + this.buffer * 2;
       const startIdx = firstRow * this.columns;
       const endIdx = Math.min(len, startIdx + visibleRows * this.columns);
+      if (startIdx === this._lastStart && endIdx === this._lastEnd && this.layer.childElementCount) {
+        this._updateFocus();
+        return;
+      }
+      this._lastStart = startIdx;
+      this._lastEnd = endIdx;
       clear(this.layer);
       this.layer.style.transform = `translateY(${firstRow * this.rowHeight}px)`;
       for (let i = startIdx; i < endIdx; i++) {
         const item = this.items[i];
         const cell = this.renderCell(item, i);
         cell.classList.add("vgrid-cell");
+        cell.dataset.i = i;
         if (i === this.focusedIndex) cell.classList.add("is-focused");
         const imgs = cell.querySelectorAll("img.lazy-img");
         imgs.forEach((im) => im.load && im.load());
         this.layer.appendChild(cell);
       }
+    }
+    /** Move the focus highlight without rebuilding cells (cheap). */
+    _updateFocus() {
+      const prev = this.layer.querySelector(".vgrid-cell.is-focused");
+      if (prev) prev.classList.remove("is-focused");
+      const cur = this.layer.querySelector('.vgrid-cell[data-i="' + this.focusedIndex + '"]');
+      if (cur) cur.classList.add("is-focused");
     }
   };
 

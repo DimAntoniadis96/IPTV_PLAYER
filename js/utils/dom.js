@@ -68,7 +68,7 @@ export const qsa = (sel, root = document) => Array.from(root.querySelectorAll(se
  * @param {string} src @param {object} [opts] { alt, fallback }
  */
 export function lazyImage(src, opts = {}) {
-    const img = el('img', { class: 'lazy-img', alt: opts.alt || '' });
+    const img = el('img', { class: 'lazy-img', alt: opts.alt || '', decoding: 'async' });
     img._pendingSrc = src || '';
     img.load = () => {
         if (!img._pendingSrc) { img.classList.add('is-empty'); return; }
