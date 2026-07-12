@@ -1,0 +1,75 @@
+/* =====================================================================
+ * tv.css — Performance overrides for the TV's weak GPU
+ * ---------------------------------------------------------------------
+ * Loaded LAST. Scoped to html.is-tv (added at bootstrap only on Tizen), so
+ * the desktop browser keeps the rich look while the TV runs flat + fast.
+ * Kills the expensive paint operations: gradients, big/glowing box-shadows,
+ * filters, text-shadows, transitions and per-focus scaling — the things
+ * that make a low-power TV stutter.
+ * ===================================================================== */
+
+/* Solid backgrounds instead of multi-stop gradients (cheap to paint). */
+html.is-tv,
+html.is-tv body { background: var(--color-bg); }
+html.is-tv .app-root,
+html.is-tv .boot-screen { background: var(--color-bg); }
+
+/* Remove every expensive effect app-wide. */
+html.is-tv * {
+    transition-duration: 0s !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+    animation: none !important;
+}
+
+/* Keep ONLY the loading spinner spinning (it's a tiny, cheap element). */
+html.is-tv .spinner,
+html.is-tv .boot-spinner { animation: spin 900ms linear infinite !important; }
+
+/* Screen enter animation off (heavy composite on mount). */
+html.is-tv .screen { animation: none !important; }
+
+/* Flatten gradient surfaces to solid colors. */
+html.is-tv .home-tile,
+html.is-tv .cell,
+html.is-tv .setting-row,
+html.is-tv .episode-row,
+html.is-tv .account-card,
+html.is-tv .toast,
+html.is-tv .player-error,
+html.is-tv .detail-poster { background: var(--color-bg-elev-1); }
+html.is-tv .cell-thumb { background: #0c0805; }
+html.is-tv .btn--primary,
+html.is-tv .seg-opt.is-active,
+html.is-tv .season-chip.is-active,
+html.is-tv .pc-fill,
+html.is-tv .home-tile.is-focused .home-tile-icon,
+html.is-tv .account-icon { background: var(--color-accent); color: var(--color-accent-contrast); }
+html.is-tv .home-tile::after { display: none; }
+
+/* Gradient TEXT (background-clip:text) is very expensive -> solid accent. */
+html.is-tv .accounts-header h1,
+html.is-tv .home-appname,
+html.is-tv .boot-title {
+    background: none !important;
+    -webkit-text-fill-color: var(--color-accent) !important;
+    color: var(--color-accent) !important;
+}
+
+/* Cheap focus indicator: a flat outline, no scale, no glow. */
+html.is-tv .is-focused,
+html.is-tv .cat.is-focused,
+html.is-tv .vgrid-cell.is-focused,
+html.is-tv .setting-row.is-focused,
+html.is-tv .episode-row.is-focused,
+html.is-tv .season-chip.is-focused,
+html.is-tv .pane-search.is-focused,
+html.is-tv .home-tile.is-focused,
+html.is-tv .account-card.is-focused,
+html.is-tv .btn.is-focused {
+    outline: 5px solid var(--color-accent);
+    outline-offset: -3px;
+    transform: none !important;
+    background: var(--color-accent-soft);
+}
