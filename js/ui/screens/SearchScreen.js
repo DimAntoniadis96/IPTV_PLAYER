@@ -45,7 +45,7 @@ export class SearchScreen extends View {
         this.field.onSelect = () => this.input.focus();
 
         this.grid = new VirtualGrid({
-            columns: 5, cellHeight: 380, gap: 24,
+            columns: 5, cellHeight: 350, gap: 24,
             renderCell: (item) => this._renderCell(item),
             onSelect: (item) => this._open(item)
         });

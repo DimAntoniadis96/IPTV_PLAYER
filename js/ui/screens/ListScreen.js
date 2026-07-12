@@ -36,9 +36,9 @@ const TITLES = {
 /** Grid geometry per section. Fewer columns = bigger artwork + readable titles. */
 function gridConfig(section) {
     if (section === SECTION.MOVIE || section === SECTION.SERIES) {
-        return { columns: 4, cellHeight: 470, poster: true };   // big posters
+        return { columns: 4, cellHeight: 420, poster: true };   // big posters
     }
-    return { columns: 4, cellHeight: 250, poster: false };      // big channel logos
+    return { columns: 4, cellHeight: 230, poster: false };      // big channel logos
 }
 
 export class ListScreen extends View {
