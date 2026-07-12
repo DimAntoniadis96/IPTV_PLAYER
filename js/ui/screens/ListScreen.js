@@ -33,6 +33,9 @@ const TITLES = {
     [SECTION.FAVORITES]: 'Favorites', [SECTION.RECENT]: 'Recently watched'
 };
 
+/** Synthetic category id: the per-section Favorites shortcut. */
+const FAV_CAT = '__favorites__';
+
 /** Grid geometry per section. Fewer columns = bigger artwork + readable titles. */
 function gridConfig(section) {
     if (section === SECTION.MOVIE || section === SECTION.SERIES) {
@@ -151,6 +154,9 @@ export class ListScreen extends View {
 
     onShow() {
         this.grid.measure();
+        // Re-read the Favorites shortcut in case favorites changed while away.
+        const cat = this.categories[this.catIndex];
+        if (this.hasCats && cat && cat.id === FAV_CAT) this._selectCat(this.catIndex);
         this._setZone(this.zone);
     }
 
@@ -168,6 +174,8 @@ export class ListScreen extends View {
             toast('Could not load categories.', 'error');
             this.allCategories = [];
         }
+        // Prepend a per-section Favorites shortcut (this section's favorites only).
+        this.allCategories = [{ id: FAV_CAT, name: '★ Favorites' }, ...this.allCategories];
         this.categories = this.allCategories.slice();
         this._renderCats();
         if (this.categories.length) { this.catIndex = 0; await this._selectCat(0); }
@@ -215,6 +223,15 @@ export class ListScreen extends View {
         if (!cat) return;
         this.allItems = [];
         this.grid.setItems([]);
+
+        // Favorites shortcut: this section's favorites only (no network).
+        if (cat.id === FAV_CAT) {
+            const items = favorites.list().filter((it) => it.section === this.section);
+            this.allItems = items;
+            this.grid.setItems(items);
+            return;
+        }
+
         try {
             const items = await playlist.getStreams(this.section, cat.id);
             if (this.categories[this.catIndex] === cat) {
