@@ -86,7 +86,11 @@ export class LoginScreen extends View {
         });
         input.addEventListener('blur', () => { this.model[key] = input.value; });
         input.addEventListener('keydown', (e) => {
-            if (e.keyCode === 13) input.blur(); // Enter confirms
+            const code = e.keyCode || e.which;
+            // Down / Enter -> confirm and move to the next control.
+            if (code === 40 || code === 13) { e.preventDefault(); e.stopPropagation(); input.blur(); focus.move('down'); }
+            else if (code === 38) { e.preventDefault(); e.stopPropagation(); input.blur(); focus.move('up'); }
+            else if (code === 10009 || code === 27) { e.preventDefault(); e.stopPropagation(); input.blur(); }
         });
 
         const field = el('div', { class: 'form-field focusable', tabindex: '-1' }, [

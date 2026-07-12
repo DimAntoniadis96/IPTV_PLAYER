@@ -66,13 +66,24 @@ export class ListScreen extends View {
         });
 
         // Left pane: category search + category list.
-        const catSearch = this._searchField('Search categories…', (v) => this._debounceCat(v));
+        const catSearch = this._searchField('Search categories…',
+            (v) => this._debounceCat(v),
+            (dir) => {
+                if (dir === 'up') this._setZone('catSearch');
+                else this._setZone(this.categories.length ? 'cats' : 'gridSearch'); // down/back
+            });
         this.catSearchField = catSearch.field;
         this.catSearchInput = catSearch.input;
         this.catsPane = el('div', { class: 'cats-pane' }, [this.catSearchField, this.catsEl]);
 
         // Right pane: in-category search + grid.
-        const itemSearch = this._searchField('Search in this category…', (v) => this._debounceItem(v));
+        const itemSearch = this._searchField('Search in this category…',
+            (v) => this._debounceItem(v),
+            (dir) => {
+                if (dir === 'up') this._setZone(this.hasCats ? 'catSearch' : 'gridSearch');
+                else if (dir === 'back') this._setZone(this.hasCats ? 'cats' : (this.grid.isEmpty ? 'gridSearch' : 'grid'));
+                else this._setZone(this.grid.isEmpty ? 'gridSearch' : 'grid'); // down -> results
+            });
         this.itemSearchField = itemSearch.field;
         this.itemSearchInput = itemSearch.input;
         this.gridPane = el('div', { class: 'grid-pane' }, [this.itemSearchField, this.grid.el]);
@@ -97,14 +108,29 @@ export class ListScreen extends View {
         ]);
     }
 
-    /** A focusable search box wrapping a native input (opens the TV keyboard). */
-    _searchField(placeholder, onInput) {
+    /**
+     * A focusable search box wrapping a native input (opens the TV keyboard).
+     * While editing, Down/Enter leaves the field to the results, Up moves up,
+     * Back/Return closes it — so you're never "trapped" typing.
+     * @param {string} placeholder
+     * @param {(v:string)=>void} onInput
+     * @param {(dir:'down'|'up'|'back')=>void} onExit
+     */
+    _searchField(placeholder, onInput, onExit) {
         const input = el('input', {
             class: 'field-input search-input', type: 'text', placeholder,
             autocomplete: 'off', autocapitalize: 'off', spellcheck: false
         });
         input.addEventListener('input', () => onInput(input.value));
-        input.addEventListener('keydown', (e) => { if (e.keyCode === 13) input.blur(); });
+        input.addEventListener('keydown', (e) => {
+            const code = e.keyCode || e.which;
+            // Down / Enter -> confirm and move into results.
+            if (code === 40 || code === 13) { e.preventDefault(); e.stopPropagation(); input.blur(); onExit('down'); }
+            // Up -> leave upward.
+            else if (code === 38) { e.preventDefault(); e.stopPropagation(); input.blur(); onExit('up'); }
+            // Return (TV back) / Escape -> just close the field.
+            else if (code === 10009 || code === 27) { e.preventDefault(); e.stopPropagation(); input.blur(); onExit('back'); }
+        });
         const field = el('div', { class: 'pane-search focusable', tabindex: '-1' }, [
             el('span', { class: 'pane-search-icon' }, '⌕'),
             input

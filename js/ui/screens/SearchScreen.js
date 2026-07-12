@@ -30,6 +30,16 @@ export class SearchScreen extends View {
             autocomplete: 'off', autocapitalize: 'off', spellcheck: false
         });
         this.input.addEventListener('input', () => this._onQuery());
+        this.input.addEventListener('keydown', (e) => {
+            const code = e.keyCode || e.which;
+            // Down / Enter -> confirm and jump into the results grid.
+            if (code === 40 || code === 13) {
+                e.preventDefault(); e.stopPropagation(); this.input.blur();
+                if (!this.grid.isEmpty) { this.zone = 'results'; this.field.classList.remove('is-focused'); this.grid.focus(); }
+            } else if (code === 10009 || code === 27) {
+                e.preventDefault(); e.stopPropagation(); this.input.blur();
+            }
+        });
 
         this.field = el('div', { class: 'form-field focusable', tabindex: '-1' }, [this.input]);
         this.field.onSelect = () => this.input.focus();
