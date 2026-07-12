@@ -88,7 +88,8 @@ export class ListScreen extends View {
             });
         this.itemSearchField = itemSearch.field;
         this.itemSearchInput = itemSearch.input;
-        this.gridPane = el('div', { class: 'grid-pane' }, [this.itemSearchField, this.grid.el]);
+        this.gridEmpty = el('div', { class: 'grid-empty is-hidden' }, '');
+        this.gridPane = el('div', { class: 'grid-pane' }, [this.itemSearchField, this.grid.el, this.gridEmpty]);
 
         this.titleEl = el('h1', { class: 'list-title' }, TITLES[this.section] || 'Browse');
         return el('div', { class: 'list-screen' }, [
@@ -146,6 +147,7 @@ export class ListScreen extends View {
             this.catsPane.classList.add('is-hidden');
             this.allItems = this.section === SECTION.FAVORITES ? favorites.list() : history.list();
             this.grid.setItems(this.allItems);
+            this._updateEmpty();
             this.zone = this.allItems.length ? 'grid' : 'gridSearch';
             return;
         }
@@ -210,7 +212,7 @@ export class ListScreen extends View {
         this.catIndex = 0;
         this._renderCats();
         if (this.categories.length) this._selectCat(0);
-        else { this.allItems = []; this.grid.setItems([]); }
+        else { this.allItems = []; this.grid.setItems([]); this._updateEmpty(); }
     }
 
     async _selectCat(i) {
@@ -229,6 +231,7 @@ export class ListScreen extends View {
             const items = favorites.list().filter((it) => it.section === this.section);
             this.allItems = items;
             this.grid.setItems(items);
+            this._updateEmpty();
             return;
         }
 
@@ -237,10 +240,26 @@ export class ListScreen extends View {
             if (this.categories[this.catIndex] === cat) {
                 this.allItems = items;
                 this.grid.setItems(items);
+                this._updateEmpty();
             }
         } catch {
             toast('Could not load this category.', 'error');
         }
+    }
+
+    /** Show a contextual message when the grid has no items. */
+    _updateEmpty() {
+        const empty = this.grid.isEmpty;
+        this.gridEmpty.classList.toggle('is-hidden', !empty);
+        if (!empty) return;
+        const cat = this.hasCats ? this.categories[this.catIndex] : null;
+        const searching = this.itemSearchInput && this.itemSearchInput.value.trim();
+        if (searching) this.gridEmpty.textContent = 'No matches.';
+        else if ((cat && cat.id === FAV_CAT) || this.section === SECTION.FAVORITES)
+            this.gridEmpty.textContent = 'No favorites yet — press the YELLOW key on a title to add it.';
+        else if (this.section === SECTION.RECENT)
+            this.gridEmpty.textContent = 'Nothing watched yet.';
+        else this.gridEmpty.textContent = 'Nothing here.';
     }
 
     _syncCatClasses() {
@@ -267,6 +286,7 @@ export class ListScreen extends View {
         const q = normalize(value);
         const items = q ? this.allItems.filter((it) => normalize(it.name).includes(q)) : this.allItems;
         this.grid.setItems(items);
+        this._updateEmpty();
     }
 
     // ---------------- Grid cell + open ----------------
