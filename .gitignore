@@ -2,6 +2,8 @@
 *.wgt
 /.buildResult/
 /output/
+/Debug/
+/Release/
 
 # Tizen Studio / Eclipse
 /.metadata/
