@@ -33,12 +33,12 @@ const TITLES = {
     [SECTION.FAVORITES]: 'Favorites', [SECTION.RECENT]: 'Recently watched'
 };
 
-/** Grid geometry per section. */
+/** Grid geometry per section. Fewer columns = bigger artwork + readable titles. */
 function gridConfig(section) {
     if (section === SECTION.MOVIE || section === SECTION.SERIES) {
-        return { columns: 7, cellHeight: 300, poster: true };
+        return { columns: 4, cellHeight: 470, poster: true };   // big posters
     }
-    return { columns: 5, cellHeight: 190, poster: false };
+    return { columns: 4, cellHeight: 250, poster: false };      // big channel logos
 }
 
 export class ListScreen extends View {

@@ -101,7 +101,7 @@
 .list-screen { padding-bottom: var(--sp-3); }
 .list-title { font-size: var(--fs-xl); font-weight: var(--fw-bold); }
 .list-body { display: flex; gap: var(--sp-5); flex: 1; min-height: 0; }
-.cats-pane { width: 440px; flex: none; display: flex; flex-direction: column; min-height: 0; }
+.cats-pane { width: 360px; flex: none; display: flex; flex-direction: column; min-height: 0; }
 .cats-pane.is-hidden { display: none; }
 .grid-pane { flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
 .grid-pane .vgrid { flex: 1 1 auto; min-height: 0; height: auto; }

@@ -126,10 +126,13 @@
 .lazy-img.is-loaded { opacity: 1; }
 .lazy-img.is-error, .lazy-img.is-empty { opacity: 0; }
 .cell-name {
-    padding: var(--sp-1) var(--sp-2) 12px;
-    font-size: var(--fs-xs); font-weight: var(--fw-medium); line-height: 1.2;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center;
+    padding: var(--sp-1) var(--sp-2) 14px;
+    font-size: var(--fs-sm); font-weight: var(--fw-medium); line-height: 1.2;
+    text-align: center;
     color: var(--color-text);
+    /* Up to 2 lines, then ellipsis — titles stay readable, no hard truncation */
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden; min-height: 2.4em;
 }
 /* Focused cell: warm border + lift (works alongside .is-focused) */
 .vgrid-cell.is-focused {
