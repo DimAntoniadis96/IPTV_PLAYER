@@ -42,19 +42,18 @@
     <!-- Screen feature: Full HD TV canvas -->
     <feature name="http://tizen.org/feature/screen.size.normal.1080.1920"/>
 
-    <!-- ================= Privileges (public-level only) =================
-         Kept minimal to guarantee the package installs with a standard
-         Samsung TV distributor certificate. All three below are PUBLIC level:
-           - internet      : network access to the configured server
-           - tv.inputdevice: register Samsung remote keys (Media/Ch/colours)
-           - application.launch : relaunch/exit the app
-         (Removed tv.audio + developer.samsung.com/network.public: not
-          essential, and a possible privilege-level cause of install reject.
-          The app already degrades gracefully without them — mute via
-          tvaudiocontrol is wrapped in try/catch, offline is detected via
-          fetch failures.) -->
+    <!-- ================= Privileges (all PUBLIC level) =================
+         All four are public-level, so they install with a standard Samsung
+         TV distributor certificate (no partner cert required):
+           - internet          : network access to the configured server
+           - tv.inputdevice    : register Samsung remote keys (Media/Ch/colours)
+           - tv.audio          : mute/volume via tizen.tvaudiocontrol
+           - application.launch: relaunch/exit the app
+         (developer.samsung.com/network.public was dropped: the app never
+          calls the network API — offline is detected via fetch failures.) -->
     <tizen:privilege name="http://tizen.org/privilege/internet"/>
     <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
+    <tizen:privilege name="http://tizen.org/privilege/tv.audio"/>
     <tizen:privilege name="http://tizen.org/privilege/application.launch"/>
 
     <!-- ================= App settings ================= -->
@@ -69,7 +68,7 @@
          http & https, keep scripts local. Tighten host list once your server is fixed. -->
     <tizen:content-security-policy>
         default-src 'self';
-        script-src 'self' 'unsafe-inline';
+        script-src 'self';
         style-src 'self' 'unsafe-inline';
         img-src 'self' data: http: https:;
         media-src 'self' http: https: blob:;

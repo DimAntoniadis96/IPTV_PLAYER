@@ -154,6 +154,10 @@ export class PlayerScreen extends View {
 
     _handleError(data) {
         if (this._destroyed || this._suspended) return;
+        // A single failure can arrive twice (AVPlay error callback + the
+        // resolved open() promise). If a retry is already scheduled, don't
+        // stack a second timer or double-increment the retry counter.
+        if (this._retryTimer) return;
         this._showSpinner(false);
         if (this._retry < MAX_AUTO_RETRY) {
             this._retry += 1;
