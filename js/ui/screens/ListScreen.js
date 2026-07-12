@@ -1,10 +1,20 @@
 /* =====================================================================
- * ListScreen.js — Categories sidebar + virtual grid of streams
+ * ListScreen.js — Categories + grid with TWO-LEVEL search
  * ---------------------------------------------------------------------
- * Drives Live TV, Movies, Series, Favorites and Recently-watched. Two
- * focus zones: the category list (left) and the grid (right). Series items
- * expand into their episodes in-place. Selecting a playable item opens the
- * player with the current grid as its channel-up/down context.
+ * Drives Live TV, Movies, Series, Favorites and Recently-watched.
+ *
+ * Four focus zones (arranged like a cross):
+ *   catSearch  — filter the CATEGORY list (e.g. find "Greek Series")
+ *   cats       — the category list
+ *   gridSearch — filter items WITHIN the selected category
+ *   grid       — the item grid (virtual-scrolled)
+ *
+ * Navigation:
+ *   catSearch  ↓ cats   → gridSearch
+ *   cats       ↑ (top) catSearch   →/OK grid
+ *   gridSearch ↓ grid   ← cats   ↑ catSearch
+ *   grid       ← (col0) cats   ↑ (top) gridSearch
+ * Favorites/Recent have no categories, so only gridSearch + grid are used.
  * ===================================================================== */
 
 import { View } from '../View.js';
@@ -13,6 +23,7 @@ import { VirtualGrid } from '../components/VirtualGrid.js';
 import { playlist } from '../../data/PlaylistService.js';
 import { favorites } from '../../data/Favorites.js';
 import { history } from '../../data/History.js';
+import { normalize } from '../../utils/format.js';
 import { SECTION, VIEW } from '../../core/constants.js';
 import { ACTION } from '../../input/Keys.js';
 import { toast } from '../components/Toast.js';
@@ -34,37 +45,49 @@ export class ListScreen extends View {
     constructor(router, params) {
         super(router, params);
         this.section = params.section;
-        this.zone = 'cats';          // 'cats' | 'grid'
+        this.hasCats = [SECTION.LIVE, SECTION.MOVIE, SECTION.SERIES].includes(this.section);
+        this.zone = this.hasCats ? 'cats' : 'grid';
         this.catIndex = 0;
-        this.categories = [];
-        this.seriesStack = null;     // set when viewing a series' episodes
+        this.allCategories = [];   // full category list (unfiltered)
+        this.categories = [];      // currently displayed (filtered) categories
+        this.allItems = [];        // full items of the selected category
+        this.seriesStack = null;   // set when viewing a series' episodes
+        this._catDeb = null;
+        this._itemDeb = null;
     }
 
     render() {
         const cfg = gridConfig(this.section);
         this.catsEl = el('div', { class: 'cats' });
         this.grid = new VirtualGrid({
-            columns: cfg.columns,
-            cellHeight: cfg.cellHeight,
-            gap: 24,
+            columns: cfg.columns, cellHeight: cfg.cellHeight, gap: 24,
             renderCell: (item, i) => this._renderCell(item, i, cfg.poster),
-            onSelect: (item, i) => this._open(item, i)
+            onSelect: (item) => this._open(item)
         });
 
+        // Left pane: category search + category list.
+        const catSearch = this._searchField('Search categories…', (v) => this._debounceCat(v));
+        this.catSearchField = catSearch.field;
+        this.catSearchInput = catSearch.input;
+        this.catsPane = el('div', { class: 'cats-pane' }, [this.catSearchField, this.catsEl]);
+
+        // Right pane: in-category search + grid.
+        const itemSearch = this._searchField('Search in this category…', (v) => this._debounceItem(v));
+        this.itemSearchField = itemSearch.field;
+        this.itemSearchInput = itemSearch.input;
+        this.gridPane = el('div', { class: 'grid-pane' }, [this.itemSearchField, this.grid.el]);
+
         this.titleEl = el('h1', { class: 'list-title' }, TITLES[this.section] || 'Browse');
-        const screen = el('div', { class: 'list-screen' }, [
+        return el('div', { class: 'list-screen' }, [
             el('div', { class: 'list-header' }, [this.titleEl]),
-            el('div', { class: 'list-body' }, [
-                el('div', { class: 'cats-pane' }, [this.catsEl]),
-                el('div', { class: 'grid-pane' }, [this.grid.el])
-            ]),
+            el('div', { class: 'list-body' }, [this.catsPane, this.gridPane]),
             el('div', { class: 'hintbar' }, [
+                this._hint('⌕', 'Search'),
                 this._hint('OK', 'Open'),
                 this._hint('YELLOW', 'Favorite', 'yellow'),
                 this._hint('BACK', 'Back')
             ])
         ]);
-        return screen;
     }
 
     _hint(key, text, color = '') {
@@ -74,13 +97,28 @@ export class ListScreen extends View {
         ]);
     }
 
+    /** A focusable search box wrapping a native input (opens the TV keyboard). */
+    _searchField(placeholder, onInput) {
+        const input = el('input', {
+            class: 'field-input search-input', type: 'text', placeholder,
+            autocomplete: 'off', autocapitalize: 'off', spellcheck: false
+        });
+        input.addEventListener('input', () => onInput(input.value));
+        input.addEventListener('keydown', (e) => { if (e.keyCode === 13) input.blur(); });
+        const field = el('div', { class: 'pane-search focusable', tabindex: '-1' }, [
+            el('span', { class: 'pane-search-icon' }, '⌕'),
+            input
+        ]);
+        field.onSelect = () => input.focus();
+        return { field, input };
+    }
+
     async onMount() {
-        // Favorites / Recent have no categories — one implicit list.
-        if (this.section === SECTION.FAVORITES || this.section === SECTION.RECENT) {
-            this.catsEl.parentNode.classList.add('is-hidden');
-            const items = this.section === SECTION.FAVORITES ? favorites.list() : history.list();
-            this.grid.setItems(items);
-            this.zone = 'grid';
+        if (!this.hasCats) {
+            this.catsPane.classList.add('is-hidden');
+            this.allItems = this.section === SECTION.FAVORITES ? favorites.list() : history.list();
+            this.grid.setItems(this.allItems);
+            this.zone = this.allItems.length ? 'grid' : 'gridSearch';
             return;
         }
         await this._loadCategories();
@@ -88,22 +126,35 @@ export class ListScreen extends View {
 
     onShow() {
         this.grid.measure();
-        if (this.zone === 'grid') this.grid.focus();
+        this._setZone(this.zone);
     }
+
+    onUnmount() {
+        if (this._catDeb) clearTimeout(this._catDeb);
+        if (this._itemDeb) clearTimeout(this._itemDeb);
+    }
+
+    // ---------------- Categories ----------------
 
     async _loadCategories() {
         try {
-            this.categories = await playlist.getCategories(this.section);
+            this.allCategories = await playlist.getCategories(this.section);
         } catch {
             toast('Could not load categories.', 'error');
-            this.categories = [];
+            this.allCategories = [];
         }
+        this.categories = this.allCategories.slice();
         this._renderCats();
-        if (this.categories.length) this._selectCat(0, true);
+        if (this.categories.length) { this.catIndex = 0; await this._selectCat(0); }
+        this._setZone('cats');
     }
 
     _renderCats() {
         clear(this.catsEl);
+        if (!this.categories.length) {
+            this.catsEl.appendChild(el('div', { class: 'cats-empty' }, 'No matching categories'));
+            return;
+        }
         this.categories.forEach((cat, i) => {
             const b = el('div', { class: 'cat', dataset: { i } }, cat.name);
             if (i === this.catIndex && this.zone === 'cats') b.classList.add('is-focused');
@@ -112,18 +163,40 @@ export class ListScreen extends View {
         });
     }
 
-    async _selectCat(i, keepZone = false) {
+    /** Filter the category list by name (level-1 search). */
+    _debounceCat(value) {
+        if (this._catDeb) clearTimeout(this._catDeb);
+        this._catDeb = setTimeout(() => this._filterCats(value), 180);
+    }
+
+    _filterCats(value) {
+        const q = normalize(value);
+        this.categories = q
+            ? this.allCategories.filter((c) => normalize(c.name).includes(q))
+            : this.allCategories.slice();
+        this.catIndex = 0;
+        this._renderCats();
+        if (this.categories.length) this._selectCat(0);
+        else { this.allItems = []; this.grid.setItems([]); }
+    }
+
+    async _selectCat(i) {
         this.catIndex = Math.max(0, Math.min(i, this.categories.length - 1));
         this.seriesStack = null;
         this._syncCatClasses();
         this._ensureCatVisible();
+        // Reset the in-category search when the category changes.
+        if (this.itemSearchInput) this.itemSearchInput.value = '';
         const cat = this.categories[this.catIndex];
         if (!cat) return;
-        this.grid.setItems([]); // clear while loading
+        this.allItems = [];
+        this.grid.setItems([]);
         try {
             const items = await playlist.getStreams(this.section, cat.id);
-            // Guard against a newer selection having superseded this load.
-            if (this.categories[this.catIndex] === cat) this.grid.setItems(items);
+            if (this.categories[this.catIndex] === cat) {
+                this.allItems = items;
+                this.grid.setItems(items);
+            }
         } catch {
             toast('Could not load this category.', 'error');
         }
@@ -142,22 +215,33 @@ export class ListScreen extends View {
         if (node && node.scrollIntoView) node.scrollIntoView({ block: 'nearest' });
     }
 
-    /** Build one grid cell (logo/poster + label + favorite star). */
+    // ---------------- In-category item search (level-2) ----------------
+
+    _debounceItem(value) {
+        if (this._itemDeb) clearTimeout(this._itemDeb);
+        this._itemDeb = setTimeout(() => this._filterItems(value), 180);
+    }
+
+    _filterItems(value) {
+        const q = normalize(value);
+        const items = q ? this.allItems.filter((it) => normalize(it.name).includes(q)) : this.allItems;
+        this.grid.setItems(items);
+    }
+
+    // ---------------- Grid cell + open ----------------
+
     _renderCell(item, index, poster) {
         const img = lazyImage(item.logo, { alt: item.name });
-        const fav = favorites.has(item.id)
-            ? el('span', { class: 'cell-fav' }, '★') : null;
+        const fav = favorites.has(item.id) ? el('span', { class: 'cell-fav' }, '★') : null;
         return el('div', { class: `cell ${poster ? 'cell--poster' : 'cell--logo'}` }, [
             el('div', { class: 'cell-thumb' }, [img, fav].filter(Boolean)),
             el('div', { class: 'cell-name' }, item.name)
         ]);
     }
 
-    /** OK on a grid item. */
     async _open(item) {
         if (!item) return;
 
-        // A series container: load and show its episodes in the grid.
         if (this.section === SECTION.SERIES && item.isSeries && !this.seriesStack) {
             toast('Loading episodes…', 'info', 1500);
             try {
@@ -167,6 +251,8 @@ export class ListScreen extends View {
                 if (!episodes.length) { toast('No episodes found.', 'warn'); return; }
                 this.seriesStack = { title: item.name };
                 this.titleEl.textContent = item.name;
+                this.allItems = episodes;
+                if (this.itemSearchInput) this.itemSearchInput.value = '';
                 this.grid.setItems(episodes);
             } catch {
                 toast('Could not load episodes.', 'error');
@@ -174,7 +260,6 @@ export class ListScreen extends View {
             return;
         }
 
-        // A playable item.
         if (item.url) {
             history.add(item);
             this.router.navigate(VIEW.PLAYER, {
@@ -184,64 +269,101 @@ export class ListScreen extends View {
         }
     }
 
-    // ---- Input ----
+    // ---------------- Zones / input ----------------
+
+    _setZone(zone) {
+        this.zone = zone;
+        if (this.catSearchField) this.catSearchField.classList.toggle('is-focused', zone === 'catSearch');
+        if (this.itemSearchField) this.itemSearchField.classList.toggle('is-focused', zone === 'gridSearch');
+        this._syncCatClasses();
+        if (zone === 'grid') this.grid.focus(); else this.grid.blur();
+    }
+
     onKey(action) {
-        // Favorite toggle works in the grid regardless of zone.
         if (action === ACTION.YELLOW && this.zone === 'grid') {
             const it = this.grid.current;
             if (it) { const added = favorites.toggle(it); toast(added ? 'Added to favorites' : 'Removed from favorites', 'success', 1500); this.grid.focus(); }
             return true;
         }
+        switch (this.zone) {
+            case 'catSearch': return this._catSearchKey(action);
+            case 'cats': return this._catKey(action);
+            case 'gridSearch': return this._gridSearchKey(action);
+            case 'grid': return this._gridKey(action);
+            default: return false;
+        }
+    }
 
-        if (this.zone === 'cats') return this._catKey(action);
-        return this._gridKey(action);
+    _catSearchKey(action) {
+        switch (action) {
+            case ACTION.OK: this.catSearchInput.focus(); return true;
+            case ACTION.DOWN: this._setZone(this.categories.length ? 'cats' : 'gridSearch'); return true;
+            case ACTION.RIGHT: this._setZone('gridSearch'); return true;
+            case ACTION.LEFT:
+            case ACTION.UP: return true;
+            default: return false;
+        }
     }
 
     _catKey(action) {
         switch (action) {
-            case ACTION.UP:   if (this.catIndex > 0) this._selectCat(this.catIndex - 1); return true;
-            case ACTION.DOWN: if (this.catIndex < this.categories.length - 1) this._selectCat(this.catIndex + 1); return true;
+            case ACTION.UP:
+                if (this.catIndex > 0) this._selectCat(this.catIndex - 1);
+                else this._setZone('catSearch');
+                return true;
+            case ACTION.DOWN:
+                if (this.catIndex < this.categories.length - 1) this._selectCat(this.catIndex + 1);
+                return true;
             case ACTION.RIGHT:
             case ACTION.OK:
-                if (!this.grid.isEmpty) { this.zone = 'grid'; this._syncCatClasses(); this.grid.focus(); }
+                if (!this.grid.isEmpty) this._setZone('grid');
+                else this._setZone('gridSearch');
                 return true;
             case ACTION.LEFT:
-                return true; // already leftmost pane — consume so stale focus isn't moved
-            default: return false; // let Back/colour keys fall through to router
+                return true;
+            default: return false;
+        }
+    }
+
+    _gridSearchKey(action) {
+        switch (action) {
+            case ACTION.OK: this.itemSearchInput.focus(); return true;
+            case ACTION.DOWN: if (!this.grid.isEmpty) this._setZone('grid'); return true;
+            case ACTION.LEFT: if (this.hasCats) this._setZone('cats'); return true;
+            case ACTION.UP: if (this.hasCats) this._setZone('catSearch'); return true;
+            case ACTION.RIGHT: return true;
+            default: return false;
         }
     }
 
     _gridKey(action) {
         if (action === ACTION.OK) { this.grid.navigate('ok'); return true; }
         if ([ACTION.LEFT, ACTION.RIGHT, ACTION.UP, ACTION.DOWN].includes(action)) {
-            const dir = action;
-            const result = this.grid.navigate(dir);
-            if (result === 'edge-left') {
-                // Leave the grid back to the category list.
-                this.zone = 'cats';
-                this.grid.blur();
-                this._syncCatClasses();
-            }
+            const result = this.grid.navigate(action);
+            if (result === 'edge-left') this._setZone(this.hasCats ? 'cats' : 'gridSearch');
+            else if (result === 'edge-top') this._setZone('gridSearch');
             return true;
         }
         return false;
     }
 
     onBack() {
-        // Series episodes -> back to series list.
+        // Series episodes -> back to the series list.
         if (this.seriesStack) {
             this.seriesStack = null;
             this.titleEl.textContent = TITLES[this.section] || 'Browse';
+            if (this.itemSearchInput) this.itemSearchInput.value = '';
             this._selectCat(this.catIndex);
+            this._setZone('grid');
             return true;
         }
-        // Grid zone -> back to categories (unless categoryless section).
-        if (this.zone === 'grid' && this.categories.length) {
-            this.zone = 'cats';
-            this.grid.blur();
-            this._syncCatClasses();
+        // From grid / grid-search -> back to categories.
+        if ((this.zone === 'grid' || this.zone === 'gridSearch') && this.hasCats) {
+            this._setZone('cats');
             return true;
         }
-        return false; // let router pop the screen
+        // From category search -> back to category list.
+        if (this.zone === 'catSearch') { this._setZone('cats'); return true; }
+        return false; // let the router pop the screen
     }
 }
