@@ -51,7 +51,6 @@ export class ListScreen extends View {
         this.allCategories = [];   // full category list (unfiltered)
         this.categories = [];      // currently displayed (filtered) categories
         this.allItems = [];        // full items of the selected category
-        this.seriesStack = null;   // set when viewing a series' episodes
         this._catDeb = null;
         this._itemDeb = null;
     }
@@ -208,7 +207,6 @@ export class ListScreen extends View {
 
     async _selectCat(i) {
         this.catIndex = Math.max(0, Math.min(i, this.categories.length - 1));
-        this.seriesStack = null;
         this._syncCatClasses();
         this._ensureCatVisible();
         // Reset the in-category search when the category changes.
@@ -265,27 +263,18 @@ export class ListScreen extends View {
         ]);
     }
 
-    async _open(item) {
+    _open(item) {
         if (!item) return;
-
-        if (this.section === SECTION.SERIES && item.isSeries && !this.seriesStack) {
-            toast('Loading episodes…', 'info', 1500);
-            try {
-                const info = await playlist.getSeriesEpisodes(item.seriesId);
-                const episodes = info.seasons.flatMap((s) =>
-                    s.episodes.map((e) => ({ ...e, name: `S${s.season}E${e.episodeNum} · ${e.name}`, logo: item.logo })));
-                if (!episodes.length) { toast('No episodes found.', 'warn'); return; }
-                this.seriesStack = { title: item.name };
-                this.titleEl.textContent = item.name;
-                this.allItems = episodes;
-                if (this.itemSearchInput) this.itemSearchInput.value = '';
-                this.grid.setItems(episodes);
-            } catch {
-                toast('Could not load episodes.', 'error');
-            }
+        // Movies and series open a detail screen (poster + description + favorite).
+        if (item.section === SECTION.MOVIE) {
+            this.router.navigate(VIEW.DETAIL, { item, section: SECTION.MOVIE });
             return;
         }
-
+        if (item.section === SECTION.SERIES && item.isSeries) {
+            this.router.navigate(VIEW.DETAIL, { item, section: SECTION.SERIES });
+            return;
+        }
+        // Live channels, episodes and any other playable item -> play directly.
         if (item.url) {
             history.add(item);
             this.router.navigate(VIEW.PLAYER, {
@@ -374,15 +363,6 @@ export class ListScreen extends View {
     }
 
     onBack() {
-        // Series episodes -> back to the series list.
-        if (this.seriesStack) {
-            this.seriesStack = null;
-            this.titleEl.textContent = TITLES[this.section] || 'Browse';
-            if (this.itemSearchInput) this.itemSearchInput.value = '';
-            this._selectCat(this.catIndex);
-            this._setZone('grid');
-            return true;
-        }
         // From grid / grid-search -> back to categories.
         if ((this.zone === 'grid' || this.zone === 'gridSearch') && this.hasCats) {
             this._setZone('cats');

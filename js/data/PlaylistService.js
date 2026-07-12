@@ -199,10 +199,16 @@ export class PlaylistService {
         return items;
     }
 
-    /** Series episodes (Xtream only; M3U series are already flat items). */
+    /** Series info: seasons + episodes + metadata (Xtream only). */
     async getSeriesEpisodes(seriesId, opts = {}) {
-        if (!this.xtream) return { seasons: [] };
+        if (!this.xtream) return { seasons: [], info: {} };
         return this.xtream.seriesInfo(seriesId, opts);
+    }
+
+    /** Movie (VOD) info: plot/genre/rating + play URL (Xtream only). */
+    async getMovieInfo(streamId, opts = {}) {
+        if (!this.xtream) return null;
+        return this.xtream.movieInfo(streamId, opts);
     }
 
     /**

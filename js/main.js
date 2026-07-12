@@ -26,6 +26,7 @@ import { LoginScreen } from './ui/screens/LoginScreen.js';
 import { AccountsScreen } from './ui/screens/AccountsScreen.js';
 import { HomeScreen } from './ui/screens/HomeScreen.js';
 import { ListScreen } from './ui/screens/ListScreen.js';
+import { DetailScreen } from './ui/screens/DetailScreen.js';
 import { PlayerScreen } from './ui/screens/PlayerScreen.js';
 import { SearchScreen } from './ui/screens/SearchScreen.js';
 import { SettingsScreen } from './ui/screens/SettingsScreen.js';
@@ -80,6 +81,7 @@ async function bootstrap() {
         .register(VIEW.ACCOUNTS, (r, p) => new AccountsScreen(r, p))
         .register(VIEW.HOME,     (r, p) => new HomeScreen(r, p))
         .register(VIEW.LIST,     (r, p) => new ListScreen(r, p))
+        .register(VIEW.DETAIL,   (r, p) => new DetailScreen(r, p))
         .register(VIEW.PLAYER,   (r, p) => new PlayerScreen(r, p))
         .register(VIEW.SEARCH,   (r, p) => new SearchScreen(r, p))
         .register(VIEW.SETTINGS, (r, p) => new SettingsScreen(r, p));

@@ -62,6 +62,7 @@ export const VIEW = Object.freeze({
     ACCOUNTS: 'accounts',
     HOME: 'home',
     LIST: 'list',
+    DETAIL: 'detail',
     SEARCH: 'search',
     SETTINGS: 'settings',
     PLAYER: 'player'

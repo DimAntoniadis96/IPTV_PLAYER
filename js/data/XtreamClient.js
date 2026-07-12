@@ -64,12 +64,32 @@ export class XtreamClient {
     }
 
     /**
-     * Fetch full series info (seasons + episodes) for a series id.
-     * @returns {Promise<{seasons: object[]}>}
+     * Fetch full series info (seasons + episodes + metadata) for a series id.
+     * @returns {Promise<{seasons: object[], info: object}>}
      */
     async seriesInfo(seriesId, opts) {
         const data = await getJson(this.urls.seriesInfo(seriesId), opts);
         return this._mapSeriesEpisodes(seriesId, data);
+    }
+
+    /**
+     * Fetch full movie (VOD) info: plot, genre, rating, cover + play URL.
+     * @returns {Promise<object|null>}
+     */
+    async movieInfo(streamId, opts) {
+        const data = await getJson(this.urls.vodInfo(streamId), opts);
+        const info = (data && data.info) || {};
+        const md = (data && data.movie_data) || {};
+        const ext = md.container_extension || 'mp4';
+        return {
+            plot: info.plot || info.description || '',
+            genre: info.genre || '',
+            rating: info.rating || '',
+            releaseDate: info.releasedate || info.release_date || '',
+            duration: info.duration || '',
+            cover: info.movie_image || info.cover_big || '',
+            url: this.urls.movieStreamUrl(streamId, ext)
+        };
     }
 
     // ---- Normalizers (defensive against missing fields) ----
@@ -144,6 +164,6 @@ export class XtreamClient {
             seasons.push({ season: Number(seasonNum), episodes: eps });
         }
         log.debug(`series ${seriesId}: ${seasons.length} seasons`);
-        return { seasons };
+        return { seasons, info: (data && data.info) || {} };
     }
 }
