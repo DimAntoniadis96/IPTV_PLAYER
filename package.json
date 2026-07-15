@@ -6,7 +6,7 @@
     "scripts": {
         "dev": "node dev-server.js",
         "start": "node dev-server.js",
-        "build": "esbuild js/main.js --bundle --format=iife --platform=browser --target=chrome69 --minify --outfile=dist/app.js"
+        "build": "npx --yes esbuild js/main.js --bundle --format=iife --platform=browser --target=chrome69 --minify --outfile=dist/app.js && cp node_modules/hls.js/dist/hls.min.js dist/hls.min.js && cp node_modules/mpegts.js/dist/mpegts.js dist/mpegts.js"
     },
     "dependencies": {
         "hls.js": "^1.6.16",

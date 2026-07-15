@@ -133,8 +133,7 @@ export class AVPlayer {
             // HLS (.m3u8) via hls.js when the browser can't play HLS natively.
             // Loaded on demand — never fetched/initialised on the AVPlay (Samsung) path.
             if (kind === 'hls' && !v.canPlayType('application/vnd.apple.mpegurl')) {
-                const mod = await import('hls.js');
-                const Hls = mod.default || mod;
+                const Hls = await this._loadLib('hls');
                 if (Hls && Hls.isSupported()) {
                     const hls = new Hls({ enableWorker: true, backBufferLength: 30 });
                     this._hls = hls;
@@ -150,8 +149,7 @@ export class AVPlayer {
             }
             // Live MPEG-TS (.ts) via mpegts.js (loaded on demand).
             if (kind === 'mpegts') {
-                const mod = await import('mpegts.js');
-                const mpegts = mod.default || mod;
+                const mpegts = await this._loadLib('mpegts');
                 if (mpegts && mpegts.isSupported && mpegts.isSupported()) {
                     const player = mpegts.createPlayer({ type: 'mpegts', isLive: true, url });
                     this._mpegts = player;
@@ -173,6 +171,41 @@ export class AVPlayer {
             this._emit(PEVENT.ERROR, {});
             return false;
         }
+    }
+
+    /**
+     * Load a media library (hls.js / mpegts.js) on demand by injecting its
+     * standalone build as a <script>, and resolve to its global object.
+     *
+     * These libs are deliberately kept OUT of the main app bundle: on a
+     * Samsung TV the native AVPlay path is used and this method is never
+     * called, so the TV never downloads or parses ~700 KB it would never run.
+     * Only the HTML5 path (browser / webOS / other TVs) pays for them, and
+     * only the first time a matching stream is opened. Returns null if the
+     * file is missing or fails to load.
+     * @param {'hls'|'mpegts'} which
+     * @returns {Promise<any|null>}
+     */
+    _loadLib(which) {
+        const CFG = {
+            hls:    { src: 'dist/hls.min.js', global: 'Hls' },
+            mpegts: { src: 'dist/mpegts.js',  global: 'mpegts' }
+        }[which];
+        if (!CFG) return Promise.resolve(null);
+        if (typeof window === 'undefined') return Promise.resolve(null);
+        if (window[CFG.global]) return Promise.resolve(window[CFG.global]);
+        // Cache the in-flight load across all player instances.
+        AVPlayer._libPromises = AVPlayer._libPromises || {};
+        if (AVPlayer._libPromises[which]) return AVPlayer._libPromises[which];
+        AVPlayer._libPromises[which] = new Promise((resolve) => {
+            const s = document.createElement('script');
+            s.src = CFG.src;
+            s.async = true;
+            s.onload = () => resolve(window[CFG.global] || null);
+            s.onerror = () => { log.warn('failed to load ' + which + ' from ' + CFG.src); resolve(null); };
+            document.head.appendChild(s);
+        });
+        return AVPlayer._libPromises[which];
     }
 
     /** Tear down any hls.js / mpegts.js engine attached to the <video>. */

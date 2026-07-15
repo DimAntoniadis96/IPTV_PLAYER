@@ -23,8 +23,6 @@ export function el(tag, props = {}, children = []) {
             for (const [dk, dv] of Object.entries(value)) node.dataset[dk] = dv;
         } else if (key === 'style' && typeof value === 'object') {
             Object.assign(node.style, value);
-        } else if (key === 'html') {
-            node.innerHTML = value;
         } else if (key === 'text') {
             node.textContent = value;
         } else if (key.startsWith('on') && typeof value === 'function') {

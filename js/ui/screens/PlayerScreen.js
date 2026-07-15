@@ -102,6 +102,7 @@ export class PlayerScreen extends View {
         this._destroyed = true;
         if (this._hideTimer) clearTimeout(this._hideTimer);
         if (this._retryTimer) clearTimeout(this._retryTimer);
+        if (this._centerTimer) clearTimeout(this._centerTimer);
         if (this._onVisibility) document.removeEventListener('visibilitychange', this._onVisibility);
         if (this.player) this.player.destroy();
         document.body.classList.remove('av-playing');
@@ -293,6 +294,7 @@ export class PlayerScreen extends View {
         if (!this.errorPanel.classList.contains('is-hidden')) {
             if (action === ACTION.OK) { this._retry = 0; this._playCurrent(); return true; }
             if (action === ACTION.BACK) return false;
+            return true; // lock out transport keys while the error panel is shown
         }
         switch (action) {
             case ACTION.OK:

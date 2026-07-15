@@ -159,7 +159,7 @@
     display: inline-block; min-width: 58px; text-align: center;
     padding: 5px 12px; border-radius: var(--radius-pill);
     background: var(--color-bg-elev-2); border: 1px solid var(--color-border);
-    font-size: 18px; font-weight: var(--fw-semibold);
+    font-size: var(--fs-xs); font-weight: var(--fw-semibold);
 }
 .hint-key--red { background: #6e1f22; border-color: #8a2a2e; }
 .hint-key--green { background: #1f5c37; border-color: #2a7a49; }

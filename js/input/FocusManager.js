@@ -27,21 +27,25 @@ class FocusManager {
     /** Set the container to search within (usually the active screen). */
     setRoot(root) { this.root = root || document.body; }
 
-    /** Collect visible focusable elements under the current root. */
+    /**
+     * Collect visible focusable elements under the current root, each paired
+     * with its measured rect. We read every rect exactly once per keypress
+     * (measuring here and reusing the value avoids a second forced layout in
+     * move(), which matters on weak TV hardware with many focusable rows).
+     */
     _candidates() {
         const list = this.root.querySelectorAll(FOCUSABLE);
         const out = [];
         for (const el of list) {
             const r = el.getBoundingClientRect();
-            if (r.width > 0 && r.height > 0) out.push(el);
+            if (r.width > 0 && r.height > 0) out.push({ el, r });
         }
         return out;
     }
 
-    /** Center point of an element rect. */
-    _center(el) {
-        const r = el.getBoundingClientRect();
-        return { x: r.left + r.width / 2, y: r.top + r.height / 2, r };
+    /** Center point of a DOMRect. */
+    _rectCenter(r) {
+        return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
     }
 
     /**
@@ -107,13 +111,13 @@ class FocusManager {
      */
     move(dir) {
         if (!this.current) { this.focusFirst(); return; }
-        const from = this._center(this.current);
+        const from = this._rectCenter(this.current.getBoundingClientRect());
         let best = null;
         let bestScore = Infinity;
 
-        for (const el of this._candidates()) {
-            if (el === this.current) continue;
-            const to = this._center(el);
+        for (const cand of this._candidates()) {
+            if (cand.el === this.current) continue;
+            const to = this._rectCenter(cand.r);
             const dx = to.x - from.x;
             const dy = to.y - from.y;
 
@@ -126,7 +130,7 @@ class FocusManager {
 
             // Penalise cross-axis misalignment heavily so we keep to a row/column.
             const score = primary + cross * 2;
-            if (score < bestScore) { bestScore = score; best = el; }
+            if (score < bestScore) { bestScore = score; best = cand.el; }
         }
 
         if (best) this.setFocus(best);
