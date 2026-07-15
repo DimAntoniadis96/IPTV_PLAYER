@@ -1,10 +1,42 @@
-# IPTV Player — Samsung Tizen Smart TV
+# IPTV Player — Samsung (Tizen) & LG (webOS) Smart TVs
 
-A clean, modular, production-quality IPTV player for **Samsung Smart TVs (2021+, Tizen 6.0+)**,
-written in **HTML5 + CSS3 + Vanilla JavaScript (ES6 modules)** using the **Samsung AVPlay API**.
+A clean, modular, production-quality IPTV player for **Samsung (Tizen 6.0+)** and **LG (webOS)**
+Smart TVs, written in **HTML5 + CSS3 + Vanilla JavaScript (ES6 modules)**. It uses the native
+**Samsung AVPlay** engine on Tizen and **hls.js / mpegts.js** on webOS and browsers.
 
 No frameworks (no React/Vue/Angular/Electron). No bundled channels or content — the app
 connects only to a server **you** configure at runtime.
+
+## ⚠️ Compatibility — will it run on my TV?
+
+**This is a native app for Samsung and LG TVs. It is NOT an Android TV / Fire TV / Roku app.**
+
+What matters is the TV's **operating system**, not the brand:
+
+| TV operating system | Brands that use it | Supported? |
+|---|---|---|
+| **Tizen** | Samsung | ✅ **Yes** — install the `.wgt` |
+| **webOS** | LG, some Tesla and other models | ✅ **Yes** — install the `.ipk` |
+| **Android TV / Google TV** | Sony, Philips, TCL, Xiaomi, Nvidia Shield, **most Tesla**, most budget TVs | ❌ No |
+| **Fire OS** | Amazon Fire TV | ❌ No |
+| **Roku OS** | Roku (and some TCL / Hisense) | ❌ No |
+| **VIDAA** | Hisense, some Tesla / Toshiba | ❌ No |
+
+> **Check your TV's OS before trying.** Settings → About, or look up your exact model number.
+> Many brands sell the same screen size with different systems — for example a **Tesla** TV can be
+> **webOS (works)** or **Android TV (does not)**. The brand alone does not tell you.
+
+### Browser / web mode (limited)
+
+The app also runs in any modern **web browser** (from a hosted URL). This is handy as a quick demo
+and for **live channels**, but be aware:
+
+- Browsers only decode a limited set of formats (mainly **MP4 / H.264**).
+- **Movies & series in `.mkv` or H.265/HEVC will NOT play in a browser** — they play only on the
+  native Samsung/LG apps, which use the TV's hardware decoders.
+- Cross-origin (CORS) rules may block some Xtream servers in a browser.
+
+**For the full experience — live, movies and series in any format — use the native Samsung/LG app.**
 
 ## Features
 
@@ -25,26 +57,26 @@ connects only to a server **you** configure at runtime.
 
 ```
 IPTV PROJECT/
-├── config.xml            # Tizen web app manifest (privileges, CSP, metadata)
-├── index.html            # Single entry point / app shell
+├── config.xml            # Samsung Tizen manifest (privileges, CSP, metadata)
+├── appinfo.json          # LG webOS manifest
 ├── icon.png              # 512×512 app icon
-├── css/
-│   ├── variables.css     # Design tokens (theme)
-│   ├── base.css          # Reset + boot screen + globals
-│   ├── components.css     (Module 6)
-│   ├── screens.css        (Module 6)
-│   └── player.css         (Module 7)
-├── js/                   # ES6 modules (added from Module 2; main.js is the entry point)
-├── assets/
-│   └── icons/            # UI + app icons
-└── docs/
-    └── BUILD.md          # Build, package (.wgt) and install instructions
+├── icon-80.png           # webOS icon (80×80)
+├── icon-130.png          # webOS large icon (130×130)
+├── index.html            # Single entry point / app shell
+├── css/                  # Design tokens, base, components, screens, player, tv (flat/fast)
+├── js/                   # ES6 modules (main.js is the entry point)
+├── dist/                 # Built bundle: app.js (~77 KB) + hls.min.js + mpegts.js (on demand)
+├── assets/               # UI + app icons
+└── docs/                 # Build, package and install instructions
 ```
 
 ## Build & install
 
-See **[docs/BUILD.md](docs/BUILD.md)** for full Tizen Studio build, `.wgt` packaging, and
-Developer-Mode install instructions.
+1. Build the bundle: `npm install` then `npm run build` (produces `dist/app.js` + the media libs).
+2. **Samsung (Tizen):** package with Tizen Studio into a `.wgt` and install in Developer Mode.
+   See **[docs/BUILD.md](docs/BUILD.md)** for full steps.
+3. **LG (webOS):** package with `ares-package .` into an `.ipk` and install with
+   `ares-install <file>.ipk` (webOS Developer Mode / `ares-cli`).
 
 ## Status — module-by-module build
 
