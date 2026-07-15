@@ -1,0 +1,18 @@
+{
+    "id": "com.iptvplayer.app",
+    "version": "1.0.0",
+    "vendor": "IPTV Player",
+    "type": "web",
+    "main": "index.html",
+    "title": "IPTV Player",
+    "icon": "icon-80.png",
+    "largeIcon": "icon-130.png",
+    "iconColor": "#1a1207",
+    "bgColor": "#0c0804",
+    "appDescription": "Personal IPTV player. Connects only to a user-configured server. No bundled channels or content.",
+    "resolution": "1920x1080",
+    "vendorUrl": "",
+    "disableBackHistoryAPI": true,
+    "handlesRelaunch": true,
+    "supportTouchMode": "none"
+}
