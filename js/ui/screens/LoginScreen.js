@@ -90,7 +90,7 @@ export class LoginScreen extends View {
             // Down / Enter -> confirm and move to the next control.
             if (code === 40 || code === 13) { e.preventDefault(); e.stopPropagation(); input.blur(); focus.move('down'); }
             else if (code === 38) { e.preventDefault(); e.stopPropagation(); input.blur(); focus.move('up'); }
-            else if (code === 10009 || code === 27) { e.preventDefault(); e.stopPropagation(); input.blur(); }
+            else if (code === 10009 || code === 461 || code === 27) { e.preventDefault(); e.stopPropagation(); input.blur(); }
         });
 
         const field = el('div', { class: 'form-field focusable', tabindex: '-1' }, [

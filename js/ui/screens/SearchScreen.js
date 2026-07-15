@@ -36,7 +36,7 @@ export class SearchScreen extends View {
             if (code === 40 || code === 13) {
                 e.preventDefault(); e.stopPropagation(); this.input.blur();
                 if (!this.grid.isEmpty) { this.zone = 'results'; this.field.classList.remove('is-focused'); this.grid.focus(); }
-            } else if (code === 10009 || code === 27) {
+            } else if (code === 10009 || code === 461 || code === 27) {
                 e.preventDefault(); e.stopPropagation(); this.input.blur();
             }
         });

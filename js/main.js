@@ -20,6 +20,7 @@ import { VIEW, APP_VERSION } from './core/constants.js';
 import { logger } from './core/Logger.js';
 import { i18n } from './i18n/i18n.js';
 import { theme } from './utils/theme.js';
+import { IS_TV, PLATFORM } from './core/platform.js';
 
 // Screens
 import { LoginScreen } from './ui/screens/LoginScreen.js';
@@ -50,9 +51,10 @@ function bootStatus(text) {
 async function bootstrap() {
     log.info('bootstrapping', { version: APP_VERSION });
 
-    // Mark real-TV runs so the CSS hides the mouse cursor (kept visible in
-    // a desktop browser, where there's no remote to drive focus).
-    if (typeof tizen !== 'undefined') document.documentElement.classList.add('is-tv');
+    // Mark real-TV runs (Tizen or webOS) so the CSS enables the fast flat
+    // theme + hides the cursor. Kept off in a desktop browser.
+    log.info('platform', PLATFORM);
+    if (IS_TV) document.documentElement.classList.add('is-tv');
 
     // Global safety net: keep stray promise rejections / errors from bubbling
     // to an "Uncaught" on the TV. Messages go through the redacting logger.

@@ -12,6 +12,14 @@ import { logger } from '../core/Logger.js';
 
 const log = logger.child('AVPlayer');
 
+/** Classify a stream URL so the HTML5 path can pick the right engine. */
+function streamKind(url) {
+    const u = String(url || '').toLowerCase().split('?')[0];
+    if (u.endsWith('.m3u8')) return 'hls';
+    if (u.endsWith('.ts')) return 'mpegts';
+    return 'native';
+}
+
 /** Normalized player events. */
 export const PEVENT = Object.freeze({
     BUFFERING: 'buffering', READY: 'ready', PLAYING: 'playing',
@@ -119,9 +127,58 @@ export class AVPlayer {
 
     async _openHtml5(url) {
         const v = this._media;
-        v.src = url;
-        try { await v.play(); this._emit(PEVENT.PLAYING); return true; }
-        catch (e) { log.warn('html5 play rejected (autoplay?)', e && e.name); return false; }
+        this._teardownEngine();
+        const kind = streamKind(url);
+        try {
+            // HLS (.m3u8) via hls.js when the browser can't play HLS natively.
+            // Loaded on demand — never fetched/initialised on the AVPlay (Samsung) path.
+            if (kind === 'hls' && !v.canPlayType('application/vnd.apple.mpegurl')) {
+                const mod = await import('hls.js');
+                const Hls = mod.default || mod;
+                if (Hls && Hls.isSupported()) {
+                    const hls = new Hls({ enableWorker: true, backBufferLength: 30 });
+                    this._hls = hls;
+                    hls.on(Hls.Events.ERROR, (evt, data) => {
+                        if (data && data.fatal) { log.warn('hls fatal', data.type); this._emit(PEVENT.ERROR, { code: data.type }); }
+                    });
+                    hls.loadSource(url);
+                    hls.attachMedia(v);
+                    await v.play().catch(() => {});
+                    this._emit(PEVENT.PLAYING);
+                    return true;
+                }
+            }
+            // Live MPEG-TS (.ts) via mpegts.js (loaded on demand).
+            if (kind === 'mpegts') {
+                const mod = await import('mpegts.js');
+                const mpegts = mod.default || mod;
+                if (mpegts && mpegts.isSupported && mpegts.isSupported()) {
+                    const player = mpegts.createPlayer({ type: 'mpegts', isLive: true, url });
+                    this._mpegts = player;
+                    player.on(mpegts.Events.ERROR, () => { log.warn('mpegts error'); this._emit(PEVENT.ERROR, {}); });
+                    player.attachMediaElement(v);
+                    player.load();
+                    await player.play().catch(() => {});
+                    this._emit(PEVENT.PLAYING);
+                    return true;
+                }
+            }
+            // Native (mp4, or HLS on Safari-family browsers).
+            v.src = url;
+            await v.play().catch(() => {});
+            this._emit(PEVENT.PLAYING);
+            return true;
+        } catch (e) {
+            log.warn('html5 open failed', e && (e.name || e.message));
+            this._emit(PEVENT.ERROR, {});
+            return false;
+        }
+    }
+
+    /** Tear down any hls.js / mpegts.js engine attached to the <video>. */
+    _teardownEngine() {
+        if (this._hls) { try { this._hls.destroy(); } catch (e) {} this._hls = null; }
+        if (this._mpegts) { try { this._mpegts.destroy(); } catch (e) {} this._mpegts = null; }
     }
 
     // ---------------- Common controls ----------------
@@ -222,7 +279,7 @@ export class AVPlayer {
     /** Stop playback (keeps the surface for a subsequent open). */
     stop() {
         if (this._useAvplay) { try { webapis.avplay.stop(); this._screenSaver(true); } catch (e) {} }
-        else { try { this._media.pause(); this._media.removeAttribute('src'); this._media.load(); } catch (e) {} }
+        else { this._teardownEngine(); try { this._media.pause(); this._media.removeAttribute('src'); this._media.load(); } catch (e) {} }
     }
 
     /** Fully close/release the player. */
@@ -232,6 +289,7 @@ export class AVPlayer {
             try { webapis.avplay.close(); } catch (e) {}
             this._screenSaver(true); // restore screensaver on teardown
         } else if (this._media) {
+            this._teardownEngine();
             try { this._media.pause(); this._media.removeAttribute('src'); this._media.load(); } catch (e) {}
         }
     }

@@ -132,7 +132,7 @@ export class ListScreen extends View {
             // Up -> leave upward.
             else if (code === 38) { e.preventDefault(); e.stopPropagation(); input.blur(); onExit('up'); }
             // Return (TV back) / Escape -> just close the field.
-            else if (code === 10009 || code === 27) { e.preventDefault(); e.stopPropagation(); input.blur(); onExit('back'); }
+            else if (code === 10009 || code === 461 || code === 27) { e.preventDefault(); e.stopPropagation(); input.blur(); onExit('back'); }
         });
         const field = el('div', { class: 'pane-search focusable', tabindex: '-1' }, [
             el('span', { class: 'pane-search-icon' }, '⌕'),

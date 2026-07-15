@@ -5,6 +5,14 @@
     "description": "Personal IPTV Player for Samsung Tizen TV — local dev server.",
     "scripts": {
         "dev": "node dev-server.js",
-        "start": "node dev-server.js"
+        "start": "node dev-server.js",
+        "build": "esbuild js/main.js --bundle --format=iife --platform=browser --target=chrome69 --minify --outfile=dist/app.js"
+    },
+    "dependencies": {
+        "hls.js": "^1.6.16",
+        "mpegts.js": "^1.8.0"
+    },
+    "devDependencies": {
+        "esbuild": "^0.28.1"
     }
 }

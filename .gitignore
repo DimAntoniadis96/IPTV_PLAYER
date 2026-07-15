@@ -22,3 +22,6 @@ Thumbs.db
 *.pfx
 author.p12
 distributor.p12
+
+# npm
+node_modules/

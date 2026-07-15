@@ -46,8 +46,9 @@
     <!-- ===== Application bundle =====
       Built with esbuild from js/main.js, transpiled down to Chromium 69/76
       (the Tizen 6.0 web engine) so newer syntax (optional chaining, nullish
-      coalescing, etc.) works on the TV. Regenerate with:
-        npx esbuild js/main.js --bundle --format=iife --target=chrome69 --outfile=dist/app.js
+      coalescing, etc.) works on the TV. Includes hls.js/mpegts.js (loaded on
+      demand) so the HTML5 path (browser / webOS / other TVs) plays HLS + TS.
+      Regenerate with:  npm run build
     -->
     <script src="dist/app.js"></script>
 </body>

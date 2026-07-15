@@ -84,7 +84,7 @@ class RemoteControl {
         // character deletion.
         if (this._isEditing()) {
             const code = e.keyCode || e.which;
-            if (code === KEY.RETURN || code === KEY.ESCAPE) {
+            if (code === KEY.RETURN || code === KEY.WEBOS_BACK || code === KEY.ESCAPE) {
                 e.preventDefault();
                 document.activeElement.blur();
             }
