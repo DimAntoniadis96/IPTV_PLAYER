@@ -38,6 +38,23 @@ and for **live channels**, but be aware:
 
 **For the full experience — live, movies and series in any format — use the native Samsung/LG app.**
 
+## 📥 Installation
+
+There is **no one‑click / USB install** — you need a **computer on the same Wi‑Fi as the TV** and
+the TV's **Developer Mode**. Full step‑by‑step for both platforms is here:
+
+### 👉 **[docs/INSTALL.md](docs/INSTALL.md)** — start here
+
+Quick summary:
+
+- **Samsung (Tizen):** a `.wgt` is tied to your specific TV (its DUID), so **you build and sign it
+  for your own TV** with Tizen Studio. Follow [docs/BUILD.md](docs/BUILD.md).
+- **LG (webOS):** download the `.ipk` from **[Releases](../../releases)** (or build it) and install
+  it with `ares-install` while the TV is in Developer Mode. Works on any webOS TV in dev mode.
+
+After installing, open the app and connect **your own** Xtream login or M3U URL — the app ships
+with no channels.
+
 ## Features
 
 - **Two login methods** — Xtream (server + username + password) or a pasted M3U URL.
@@ -70,7 +87,9 @@ IPTV PROJECT/
 └── docs/                 # Build, package and install instructions
 ```
 
-## Build & install
+## Build from source (for developers)
+
+> Just want to install the app? See **[Installation](#-installation)** above instead.
 
 1. Build the bundle: `npm install` then `npm run build` (produces `dist/app.js` + the media libs).
 2. **Samsung (Tizen):** package with Tizen Studio into a `.wgt` and install in Developer Mode.
